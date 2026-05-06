@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="fas fa-home"></i><span>Home</span></a></li>
+    <li><a href="gallery.html"><i class="fas fa-images"></i><span>Gallery</span></a></li>
+    <li><a href="about.html"><i class="fas fa-users"></i><span>About Us</span></a></li>
+    <li><a href="contact.html"><i class="fas fa-envelope"></i><span>Contact</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span class="tooltip">Cart</span></a>
+    <a href="login.html" class="nav-btn nav-login"><i class="fas fa-user"></i><span class="tooltip">Profile</span></a>
+  </div>
+</header>
+
+<main class="page">
+<div class="main" style="width:100%;">
+
+  <div class="banner" style="text-align:center;">
+    <h2>Contact Us</h2>
+    <p>We'd love to hear from you</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- FORM -->
+    <div class="section">
+      <h2 style="margin-bottom:20px;">Get In Touch</h2>
+      
+      <form id="contactForm">
+        <label class="label">Name</label>
+        <input class="input" type="text" id="contactName" placeholder="Your name" required>
+        
+        <label class="label">Email</label>
+        <input class="input" type="email" id="contactEmail" placeholder="your.email@example.com" required>
+        
+        <label class="label">Subject</label>
+        <input class="input" type="text" id="contactSubject" placeholder="How can we help?">
+        
+        <label class="label">Message</label>
+        <textarea class="input" id="contactMessage" rows="5" placeholder="Your message..." required></textarea>
+        
+        <button class="add-btn" type="submit" id="sendBtn">Send Message</button>
+        
+        <div id="contactStatus" style="display:none; padding:12px; border-radius:8px; margin-top:15px; text-align:center;"></div>
+      </form>
+    </div>
+
+    <!-- INFO -->
+    <div>
+      <div class="section">
+        <h3>Contact Information</h3>
+        <div class="contact-item">
+          <div class="icon"></div>
+          <div><h4>Email</h4><p style="color:#666;">info@courtsidehoops.com</p><p style="color:#666;">support@courtsidehoops.com</p></div>
+        </div>
+        <div class="contact-item">
+          <div class="icon"></div>
+          <div><h4>Phone</h4><p style="color:#666;">Main: (555) 123-4567</p></div>
+        </div>
+        <div class="contact-item">
+          <div class="icon"></div>
+          <div><h4>Business Hours</h4><p style="color:#666;">Mon–Fri: 9AM–6PM</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-left">
+      <h3>COURTSIDE HOOPS</h3>
+      <p class="disclaimer">
+        Not affiliated, associated, or partnered with the NBA.
+      </p>
+      <p class="copyright">
+        © 2025–2026 All Rights Reserved
+      </p>
+    </div>
+
+    <!-- CENTER -->
+    <div class="footer-center">
+      <h4>Contact</h4>
+      <p>support@courtsidehoops.gg</p>
+      <p>Business hours: 09:00–18:00</p>
+
+      <div class="socials">
+        <div class="social">📷</div>
+        <div class="social">✈️</div>
+        <div class="social">▶️</div>
+        <div class="social">🎮</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="footer-right">
+      <h4>Legal</h4>
+      <div class="footer-links">
+        <div class="footer-btn">Terms of Service →</div>
+        <div class="footer-btn">Privacy Policy →</div>
+        <div class="footer-btn">AML KYC Policy →</div>
+      </div>
+    </div>
+
+  </div>
+
+</footer>>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const supabase = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+
+<script>
+// Contact form submission
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    const btn = document.getElementById('sendBtn');
+    const status = document.getElementById('contactStatus');
+    
+    if (!name || !email || !message) {
+        status.style.display = 'block';
+        status.style.background = '#fef2f2';
+        status.style.color = '#dc2626';
+        status.textContent = 'Please fill in all required fields.';
+        return;
+    }
+    
+    // Disable button
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    
+    const { error } = await supabase
+        .from('contact_messages')
+        .insert({ name, email, subject, message });
+    
+    if (error) {
+        status.style.display = 'block';
+        status.style.background = '#fef2f2';
+        status.style.color = '#dc2626';
+        status.textContent = 'Failed to send. Please try again.';
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+    } else {
+        status.style.display = 'block';
+        status.style.background = '#f0fdf4';
+        status.style.color = '#16a34a';
+        status.textContent = '✅ Message sent successfully! We\'ll get back to you soon.';
+        
+        // Clear form
+        document.getElementById('contactForm').reset();
+        btn.textContent = 'Sent!';
+        
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Send Message';
+            status.style.display = 'none';
+        }, 3000);
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home | Courtside Hoops</title>
+  <link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+  <link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="logo">
+ <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+  COURTSIDE HOOPS
+</div>
+
+<ul class="nav-links">
+  <li>
+    <a href="index.html">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+  </li>
+  <li>
+    <a href="gallery.html">
+      <i class="fas fa-images"></i>
+      <span>Gallery</span>
+    </a>
+  </li>
+  <li>
+    <a href="about.html">
+      <i class="fas fa-users"></i>
+      <span>About Us</span>
+    </a>
+  </li>
+  <li>
+    <a href="contact.html">
+      <i class="fas fa-envelope"></i>
+      <span>Contact</span>
+    </a>
+  </li>
+</ul>
+
+<div class="nav-right">
+
+  <a href="login.html" class="nav-btn">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="tooltip">Cart</span>
+  </a>
+
+ <a href="login.html" class="nav-btn nav-login">
+  <i class="fas fa-user"></i>
+  <span class="tooltip">Profile</span>
+</a>
+</div>
+</header>
+
+<!-- MAIN -->
+<main class="page">
+
+  <div class="main" style="width:100%;">
+
+    <!-- HERO -->
+    <div class="section" style="display:flex; justify-content:space-between; align-items:center; gap:40px; flex-wrap:wrap;">
+
+     <div style="flex:1; min-width:300px; padding-left:30px;">
+        <h1 style="font-size:44px; margin-bottom:10px;">Collect What Matters</h1>
+        <p style="color:#666; max-width:420px; line-height:1.6;">
+          A modern NBA card marketplace inspired by MyTEAM — built for collectors and fans.
+        </p>
+
+        <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="gallery.html" style="background:#111;color:white;padding:12px 20px;border-radius:8px;text-decoration:none;">Explore</a>
+          <a href="about.html" class="secondary-btn">Learn More</a>
+        </div>
+      </div>
+
+      <!-- TILT CARD -->
+      <div class="tilt-wrapper" style="transform: translateX(-50px);">
+        <div class="tilt-card" id="tiltCard">
+          <img src="../CourtsideHoops/images/lebron.png">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FEATURES -->
+    <div class="flex">
+
+      <div class="feature">
+
+  <div style="margin-bottom:12px;">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+      <path d="M12 2l8 4v6c0 5-3.5 9.4-8 10-4.5-.6-8-5-8-10V6l8-4z"/>
+    </svg>
+  </div>
+
+    <h4>Secure Trading</h4>
+    <p style="color:#666;font-size:14px;">
+    Built with reliability, authenticity, and trust in mind.
+      </p>
+      </div>
+
+      <div class="feature">
+
+  <div style="margin-bottom:12px;">
+   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 17l7-7 4 4 7-7"/>
+  <polyline points="14 7 21 7 21 14"/>
+  </svg>
+    </div>
+
+      <h4>Market Insights</h4>
+      <p style="color:#666;font-size:14px;">
+      Track trends and understand card value in real-time.
+      </p>
+      </div>
+
+      <div class="feature">
+
+    
+    <div style="margin-bottom:12px;">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15 9 22 9 17 14 18 21 12 17 6 21 7 14 2 9 9 9 12 2"/>
+    </svg>
+    </div>
+
+    <h4>Curated Cards</h4>
+    <p style="color:#666;font-size:14px;">
+    Carefully selected NBA cards from all eras and rarities.
+    </p>
+    </div>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="stats" style="margin-top:20px;">
+
+      <div class="stat">
+        <h2>10K+</h2>
+        <p style="color:#777;">Cards</p>
+      </div>
+
+      <div class="stat">
+        <h2>5K+</h2>
+        <p style="color:#777;">Collectors</p>
+      </div>
+
+      <div class="stat">
+        <h2>$1M+</h2>
+        <p style="color:#777;">Market</p>
+      </div>
+
+    </div>
+
+    <div class="section" style="margin-top:20px;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <h2 style="margin:0;">Trending Cards</h2>
+    <a href="gallery.html">
+      <button class="view">View All →</button>
+    </a>
+  </div>
+
+  <div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:15px;
+  ">
+
+     <div class="card"
+     data-name="SGA"
+     data-price="$800"
+     data-rarity="Legendary"
+     data-img="../CourtsideHoops/images/shai.png">
+
+  <img src="../CourtsideHoops/images/shai.png">
+  <h4>Shai Alexander</h4>
+  <p>$2000</p>
+  <a href="login.html">
+    <button class="add-btn">Add to Cart</button>
+  </a>
+</div>
+
+   <div class="card"
+     data-name="Steph Curry"
+     data-price="$800"
+     data-rarity="Epic"
+     data-img="../CourtsideHoops/images/curry.png">
+
+  <img src="../CourtsideHoops/images/curry.png">
+  <h4>Steph Curry</h4>
+  <p>$800</p>
+  <a href="login.html">
+    <button class="add-btn">Add to Cart</button>
+  </a>
+</div>
+
+    <div class="card"
+     data-name="Giannis Antetokounmpo"
+     data-price="$550"
+     data-rarity="Rare"
+     data-img="../CourtsideHoops/images/giannis.png">
+
+  <img src="../CourtsideHoops/images/giannis.png">
+  <h4>Giannis Antetokounmpo</h4>
+  <p>$550</p>
+
+   <a href="login.html">
+    <button class="add-btn">Add to Cart</button>
+  </a>
+</div>
+
+   <div class="card"
+     data-name="Luka Doncic"
+     data-price="$500"
+     data-rarity="Rare"
+     data-img="../CourtsideHoops/images/luka.png">
+
+  <img src="../CourtsideHoops/images/luka.png">
+  <h4>Luka Doncic</h4>
+  <p>$500</p>
+
+  <a href="login.html">
+    <button class="add-btn">Add to Cart</button>
+  </a>
+</div>
+
+
+  </div>
+</div>
+
+    <!-- CTA -->
+    <div class="banner" style="padding:40px; border-radius:14px; text-align:center;">
+      <h2>Start Your Collection</h2>
+      <p style="margin:10px 0 20px;">Join thousands of NBA card collectors today</p>
+      <a href="gallery.html">
+        <button class="view">Browse Cards</button>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-card">
+
+    <button class="modal-close" id="modalClose">✕</button>
+
+    <div class="modal-content">
+      <div class="modal-image">
+        <img id="modalImg">
+      </div>
+
+      <div class="modal-details">
+        <h2 id="modalName"></h2>
+
+        <span class="rarity-tag" id="modalRarity"></span>
+
+        <p class="modal-desc">
+          Premium NBA collectible card. Limited supply, high demand.
+        </p>
+
+        <div class="modal-bottom">
+          <h3 id="modalPrice"></h3>
+          <button class="add-btn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-left">
+      <h3>COURTSIDE HOOPS</h3>
+      <p class="disclaimer">
+        Not affiliated, associated, or partnered with the NBA.
+      </p>
+      <p class="copyright">
+        © 2025–2026 All Rights Reserved
+      </p>
+    </div>
+
+    <!-- CENTER -->
+    <div class="footer-center">
+      <h4>Contact</h4>
+      <p>support@courtsidehoops.gg</p>
+      <p>Business hours: 09:00–18:00</p>
+
+      <div class="socials">
+        <div class="social">📷</div>
+        <div class="social">✈️</div>
+        <div class="social">▶️</div>
+        <div class="social">🎮</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="footer-right">
+      <h4>Legal</h4>
+      <div class="footer-links">
+        <div class="footer-btn">Terms of Service →</div>
+        <div class="footer-btn">Privacy Policy →</div>
+        <div class="footer-btn">AML KYC Policy →</div>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+<script src="../CourtsideHoops/js/script.js"></script>
+
+<!-- TILT EFFECT -->
+<script>
+const card = document.getElementById("tiltCard");
+
+card.addEventListener("mousemove", (e) => {
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const rotateX = ((y / rect.height) - 0.5) * 15;
+  const rotateY = ((x / rect.width) - 0.5) * -15;
+
+  card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+});
+
+card.addEventListener("mouseleave", () => {
+  card.style.transform = "rotateX(0deg) rotateY(0deg)";
+});
+</script>
+
+</body>
+</html>

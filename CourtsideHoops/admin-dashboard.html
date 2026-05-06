@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ===== LAYOUT FIX ===== */
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* MAIN CONTENT AREA */
+.content {
+  flex: 1;
+  display: flex;
+}
+
+/* MAIN */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 30px;
+}
+
+/* SECTION TOGGLE */
+.item-section {
+  display: none;
+}
+.item-section.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--surface);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card h4 {
+  font-size: 13px;
+  color: #777;
+}
+.stat-card p {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* PRODUCT TABLE + DELIVERY TABLE + USER TABLE */
+.product-table-container,
+.delivery-table-container,
+.user-table-container,
+.announcement-table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text);
+}
+
+.admin-table tr:hover {
+  background: rgba(239, 68, 68, 0.03);
+}
+
+.badge-stock {
+  background: #22c55e20;
+  color: #15803d;
+  padding: 4px 10px;
+  border-radius: 40px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+body.dark .badge-stock {
+  background: #22c55e30;
+  color: #86efac;
+}
+
+/* Status badges for delivery */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+.status-processing { background: #f9731620; color: #c2410c; }
+.status-shipped { background: #3b82f620; color: #1d4ed8; }
+.status-delivered { background: #22c55e20; color: #15803d; }
+.status-pending { background: #6b728020; color: #4b5563; }
+
+/* User role badges */
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.role-admin { background: #ef444420; color: #dc2626; }
+.role-manager { background: #8b5cf620; color: #6d28d9; }
+.role-customer { background: #3b82f620; color: #1d4ed8; }
+
+/* Announcement status badges */
+.status-published { background: #22c55e20; color: #15803d; }
+.status-draft { background: #6b728020; color: #4b5563; }
+
+/* Banned user row styling */
+.user-row-banned {
+  opacity: 0.6;
+  background: rgba(0,0,0,0.03);
+}
+body.dark .user-row-banned {
+  background: rgba(255,255,255,0.03);
+}
+
+.action-icons i {
+  margin: 0 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s;
+  color: var(--text-muted);
+}
+
+.action-icons i:hover {
+  color: var(--primary, #ef4444);
+  transform: scale(1.1);
+}
+
+.add-product-btn, .add-user-btn, .add-announcement-btn {
+  background: var(--primary, #ef4444);
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-product-btn:hover, .add-user-btn:hover, .add-announcement-btn:hover {
+  background: var(--primary-dark, #dc2626);
+  transform: translateY(-1px);
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Search Bar Styles */
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 6px 16px;
+  transition: 0.2s;
+}
+
+.search-bar-container:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.search-bar-container i {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.search-bar-container input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  width: 220px;
+  outline: none;
+  color: var(--text);
+}
+
+.search-bar-container input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-bar-container input:focus {
+  outline: none;
+}
+
+.search-clear {
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: 0.2s;
+}
+
+.search-clear:hover {
+  color: var(--primary);
+}
+
+/* Announcement special styles */
+.announcement-preview {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* FOOTER FIX */
+.footer {
+  width: 100%;
+  margin-top: auto;
+}
+
+body.dark .sidebar {
+  background: #111;
+  border-right: 1px solid #333;
+}
+
+body.dark .main {
+  background: #111;
+  color: #eee;
+}
+
+body.dark .sidebar-link {
+  color: #eee;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 90%;
+}
+
+.modal-content h3 {
+  margin-bottom: 16px;
+}
+
+.modal-content input, .modal-content select, .modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.modal-content textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background: #6b7280;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background: var(--primary, #ef4444);
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+<header class="navbar">
+  <div class="logo">
+ <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+  COURTSIDE HOOPS
+</div>
+  <div class="nav-right">
+    <div class="profile-menu">
+      <button class="nav-btn profile-btn">
+        <i class="fas fa-user"></i>
+        <span class="tooltip">Profile</span>
+      </button>
+      <div class="dropdown">
+        <a href="admin-account.html"><i class="fas fa-id-card"></i> Account</a>
+        <button id="darkModeToggle">
+        <i id="darkIcon" class="fas fa-moon"></i>
+        </button>
+        <button class="logout-button" data-logout><i class="fas fa-right-from-bracket"></i> Log Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-links">
+      <h3 class="sidebar-title">Admin Dashboard</h3>
+      <a class="sidebar-link active" href="javascript:void(0)" onclick="showSection('product-section', this)">
+        <i class="fas fa-box"></i>
+        <span>Product Management</span>
+      </a>
+      <a class="sidebar-link" href="javascript:void(0)" onclick="showSection('delivery-section', this)">
+        <i class="fas fa-truck"></i>
+        <span>Delivery Status</span>
+      </a>
+      <h3 class="sidebar-title">Admin Tools</h3>
+      <a class="sidebar-link" href="javascript:void(0)" onclick="showSection('user-section', this)">
+        <i class="fas fa-users"></i>
+        <span>User Management</span>
+      </a>
+      <a class="sidebar-link" href="javascript:void(0)" onclick="showSection('announcement-section', this)">
+          <i class="fas fa-user-shield"></i>
+          <span>Announcement</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- PRODUCT MANAGEMENT SECTION -->
+    <div id="product-section" class="item-section active">
+      <div class="flex-between">
+        <h2><i class="fas fa-boxes"></i> Product Management</h2>
+        <div style="display: flex; gap: 12px;">
+          <div class="search-bar-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="productSearchInput" placeholder="Search products..." onkeyup="filterProducts()">
+            <i class="fas fa-times-circle search-clear" onclick="clearProductSearch()" style="cursor: pointer;"></i>
+          </div>
+          <button class="add-product-btn" id="addProductBtn"><i class="fas fa-plus"></i> Add Product</button>
+        </div>
+      </div>
+      <div class="product-table-container">
+        <table class="admin-table">
+          <thead><tr><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead>
+          <tbody id="productTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DELIVERY STATUS SECTION -->
+    <div id="delivery-section" class="item-section">
+      <div class="flex-between">
+        <h2><i class="fas fa-truck"></i> Delivery Status</h2>
+        <div style="display: flex; gap: 12px;">
+          <div class="search-bar-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="deliverySearchInput" placeholder="Search orders..." onkeyup="filterDeliveries()">
+            <i class="fas fa-times-circle search-clear" onclick="clearDeliverySearch()" style="cursor: pointer;"></i>
+          </div>
+          <button class="add-product-btn" id="addDeliveryBtn" style="background:#3b82f6;"><i class="fas fa-plus"></i> Add Order</button>
+        </div>
+      </div>
+      <div class="stats" id="deliveryStats"></div>
+      <div class="delivery-table-container">
+        <table class="admin-table">
+          <thead><tr><th>Order ID</th><th>Customer Name</th><th>Product</th><th>Order Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="deliveryTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USER MANAGEMENT SECTION -->
+    <div id="user-section" class="item-section">
+      <div class="flex-between">
+        <h2><i class="fas fa-users"></i> User Management</h2>
+        <div style="display: flex; gap: 12px;">
+          <div class="search-bar-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="userSearchInput" placeholder="Search users..." onkeyup="filterUsers()">
+            <i class="fas fa-times-circle search-clear" onclick="clearUserSearch()" style="cursor: pointer;"></i>
+          </div>
+          <button class="add-user-btn" id="addUserBtn"><i class="fas fa-user-plus"></i> Add User</button>
+        </div>
+      </div>
+      <div class="stats" id="userStats"></div>
+      <div class="user-table-container">
+        <table class="admin-table">
+          <thead><tr><th>User ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENT MANAGEMENT SECTION -->
+    <div id="announcement-section" class="item-section">
+      <div class="flex-between">
+        <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
+        <div style="display: flex; gap: 12px;">
+          <div class="search-bar-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="announcementSearchInput" placeholder="Search announcements..." onkeyup="filterAnnouncements()">
+            <i class="fas fa-times-circle search-clear" onclick="clearAnnouncementSearch()" style="cursor: pointer;"></i>
+          </div>
+          <button class="add-announcement-btn" id="addAnnouncementBtn"><i class="fas fa-plus"></i> Create Announcement</button>
+        </div>
+      </div>
+      <div class="stats" id="announcementStats"></div>
+      <div class="announcement-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Content</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="announcementTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-left">
+      <h3>COURTSIDE HOOPS</h3>
+      <p class="disclaimer">Not affiliated, associated, or partnered with the NBA.</p>
+      <p class="copyright">© 2025–2026 All Rights Reserved</p>
+    </div>
+    <div class="footer-center">
+      <h4>Contact</h4>
+      <p>support@courtsidehoops.gg</p>
+      <p>Business hours: 09:00–18:00</p>
+      <div class="socials"><div class="social">📷</div><div class="social">✈️</div><div class="social">▶️</div><div class="social">🎮</div></div>
+    </div>
+    <div class="footer-right">
+      <h4>Legal</h4>
+      <div class="footer-links"><div class="footer-btn">Terms of Service →</div><div class="footer-btn">Privacy Policy →</div><div class="footer-btn">AML KYC Policy →</div></div>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<!-- Modal for Product -->
+<div id="productModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modalTitle">Add Product</h3>
+    <input type="text" id="productName" placeholder="Product Name">
+    <input type="text" id="productCategory" placeholder="Category">
+    <input type="number" id="productPrice" placeholder="Price">
+    <input type="number" id="productStock" placeholder="Stock">
+    <div class="modal-buttons"><button id="cancelProductBtn">Cancel</button><button id="saveProductBtn">Save</button></div>
+  </div>
+</div>
+
+<!-- Modal for Delivery -->
+<div id="deliveryModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="deliveryModalTitle">Add Order</h3>
+    <input type="text" id="deliveryCustomer" placeholder="Customer Name">
+    <input type="text" id="deliveryProduct" placeholder="Product Name">
+    <input type="date" id="deliveryDate">
+    <select id="deliveryStatusSelect"><option value="Processing">Processing</option><option value="Shipped">Shipped</option><option value="Delivered">Delivered</option><option value="Pending">Pending</option></select>
+    <div class="modal-buttons"><button id="cancelDeliveryBtn">Cancel</button><button id="saveDeliveryBtn">Save</button></div>
+  </div>
+</div>
+
+<!-- Modal for User -->
+<div id="userModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="userModalTitle">Add User</h3>
+    <input type="text" id="userName" placeholder="Username">
+    <input type="email" id="userEmail" placeholder="Email">
+    <select id="userRoleSelect"><option value="customer">Customer</option><option value="admin">Admin</option><option value="manager">Manager</option></select>
+    <div class="modal-buttons"><button id="cancelUserBtn">Cancel</button><button id="saveUserBtn">Save</button></div>
+  </div>
+</div>
+
+<!-- Modal for Announcement -->
+<div id="announcementModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="announcementModalTitle">Create Announcement</h3>
+    <input type="text" id="announcementTitle" placeholder="Announcement Title">
+    <textarea id="announcementContent" placeholder="Announcement content..."></textarea>
+    <select id="announcementStatus">
+      <option value="Published">Published</option>
+      <option value="Draft">Draft</option>
+    </select>
+    <div class="modal-buttons"><button id="cancelAnnouncementBtn">Cancel</button><button id="saveAnnouncementBtn">Save</button></div>
+  </div>
+</div>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    window.supabaseClient = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script>
+// ============================================
+// ADMIN DASHBOARD - CONNECTED TO SUPABASE
+// ============================================
+
+let products = [];
+let deliveries = [];
+let users = [];
+let announcements = [];
+let editingId = null;
+let editingType = null;
+
+// ============================================
+// SECTION SWITCHING
+// ============================================
+function showSection(id, element) {
+    document.querySelectorAll('.item-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    if (element) element.classList.add('active');
+    
+    if (id === 'product-section') loadProducts();
+    if (id === 'delivery-section') loadDeliveries();
+    if (id === 'user-section') loadUsers();
+    if (id === 'announcement-section') loadAnnouncements();
+}
+
+// ============================================
+// PRODUCTS
+// ============================================
+async function loadProducts() {
+    const { data, error } = await window.supabaseClient.from('products').select('*').order('id');
+    if (error) { console.error(error); return; }
+    products = data || [];
+    renderProducts();
+}
+
+function renderProducts() {
+    const tbody = document.getElementById('productTableBody');
+    if (products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No products. Click Add Product</td></tr>';
+        return;
+    }
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${p.category}</td>
+            <td>₱${parseFloat(p.price).toLocaleString()}</td>
+            <td><span class="badge-stock">${p.stock} units</span></td>
+            <td class="action-icons">
+                <i class="fas fa-edit" onclick="editProduct(${p.id})"></i>
+                <i class="fas fa-trash-alt" onclick="deleteProduct(${p.id})"></i>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openProductModal(edit = false) {
+    document.getElementById('productModal').style.display = 'flex';
+    if (edit) {
+        document.getElementById('modalTitle').textContent = 'Edit Product';
+        const p = products.find(p => p.id === editingId);
+        if (p) {
+            document.getElementById('productName').value = p.name;
+            document.getElementById('productCategory').value = p.category;
+            document.getElementById('productPrice').value = p.price;
+            document.getElementById('productStock').value = p.stock;
+        }
+    } else {
+        document.getElementById('modalTitle').textContent = 'Add Product';
+        document.getElementById('productName').value = '';
+        document.getElementById('productCategory').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productStock').value = '';
+        editingId = null;
+    }
+}
+
+function closeProductModal() { document.getElementById('productModal').style.display = 'none'; }
+
+async function saveProduct() {
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value.trim();
+    const price = parseFloat(document.getElementById('productPrice').value);
+    const stock = parseInt(document.getElementById('productStock').value);
+    
+    if (!name || isNaN(price) || isNaN(stock)) { alert('Fill all fields correctly'); return; }
+    
+    if (editingId) {
+        await window.supabaseClient.from('products').update({ name, category, price, stock, updated_at: new Date() }).eq('id', editingId);
+    } else {
+        await window.supabaseClient.from('products').insert({ name, category, price, stock, rarity: 'Common' });
+    }
+    
+    closeProductModal();
+    loadProducts();
+}
+
+function editProduct(id) { editingId = id; openProductModal(true); }
+
+async function deleteProduct(id) {
+    if (!confirm('Delete this product?')) return;
+    await window.supabaseClient.from('products').delete().eq('id', id);
+    loadProducts();
+}
+
+// ============================================
+// DELIVERIES (ORDERS)
+// ============================================
+async function loadDeliveries() {
+    const { data, error } = await window.supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    deliveries = data || [];
+    renderDeliveries();
+}
+
+function renderDeliveries() {
+    const tbody = document.getElementById('deliveryTableBody');
+    if (deliveries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No orders found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = deliveries.map(d => `
+        <tr>
+            <td>${d.id}</td>
+            <td>${d.customer_name}</td>
+            <td>${d.product_name}</td>
+            <td>${d.order_date || d.created_at?.split('T')[0]}</td>
+            <td><span class="status-badge status-${(d.status || 'processing').toLowerCase()}">${d.status || 'Processing'}</span></td>
+            <td class="action-icons">
+                <i class="fas fa-edit" onclick="editDelivery('${d.id}')"></i>
+                <i class="fas fa-trash-alt" onclick="deleteDelivery('${d.id}')"></i>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Stats
+    const stats = document.getElementById('deliveryStats');
+    if (stats) {
+        const p = deliveries.filter(d => d.status === 'Processing').length;
+        const s = deliveries.filter(d => d.status === 'Shipped').length;
+        const d2 = deliveries.filter(d => d.status === 'Delivered').length;
+        const pe = deliveries.filter(d => d.status === 'Pending').length;
+        stats.innerHTML = `
+            <div class="stat-card"><h4>Processing</h4><p>${p}</p></div>
+            <div class="stat-card"><h4>Shipped</h4><p>${s}</p></div>
+            <div class="stat-card"><h4>Delivered</h4><p>${d2}</p></div>
+            <div class="stat-card"><h4>Pending</h4><p>${pe}</p></div>`;
+    }
+}
+
+function openDeliveryModal(edit = false) {
+    document.getElementById('deliveryModal').style.display = 'flex';
+    if (edit) {
+        document.getElementById('deliveryModalTitle').textContent = 'Edit Order';
+        const d = deliveries.find(d => d.id === editingId);
+        if (d) {
+            document.getElementById('deliveryCustomer').value = d.customer_name;
+            document.getElementById('deliveryProduct').value = d.product_name;
+            document.getElementById('deliveryDate').value = d.order_date || '';
+            document.getElementById('deliveryStatusSelect').value = d.status || 'Processing';
+        }
+    } else {
+        document.getElementById('deliveryModalTitle').textContent = 'Add Order';
+        document.getElementById('deliveryCustomer').value = '';
+        document.getElementById('deliveryProduct').value = '';
+        document.getElementById('deliveryDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('deliveryStatusSelect').value = 'Processing';
+        editingId = null;
+    }
+}
+
+function closeDeliveryModal() { document.getElementById('deliveryModal').style.display = 'none'; }
+
+async function saveDelivery() {
+    const customer = document.getElementById('deliveryCustomer').value.trim();
+    const product = document.getElementById('deliveryProduct').value.trim();
+    const date = document.getElementById('deliveryDate').value;
+    const status = document.getElementById('deliveryStatusSelect').value;
+    
+    if (!customer || !product) { alert('Fill all fields'); return; }
+    
+    if (editingId) {
+        await window.supabaseClient.from('orders').update({ customer_name: customer, product_name: product, order_date: date, status }).eq('id', editingId);
+    } else {
+        const id = 'ORD-' + Date.now().toString(36).toUpperCase();
+        await window.supabaseClient.from('orders').insert({ id, customer_name: customer, product_name: product, order_date: date, status, total_amount: 0 });
+    }
+    
+    closeDeliveryModal();
+    loadDeliveries();
+}
+
+function editDelivery(id) { editingId = id; openDeliveryModal(true); }
+
+async function deleteDelivery(id) {
+    if (!confirm('Delete this order?')) return;
+    await window.supabaseClient.from('orders').delete().eq('id', id);
+    loadDeliveries();
+}
+
+// ============================================
+// USERS
+// ============================================
+async function loadUsers() {
+    const { data, error } = await window.supabaseClient.from('profiles').select('*').order('member_since', { ascending: false });
+    if (error) { console.error(error); return; }
+    users = data || [];
+    renderUsers();
+}
+
+function renderUsers() {
+    const tbody = document.getElementById('userTableBody');
+    if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No users found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = users.map(u => `
+        <tr class="${u.is_banned ? 'user-row-banned' : ''}">
+            <td>${u.id.substring(0, 8)}</td>
+            <td>${u.full_name || u.username}${u.is_banned ? ' 🚫' : ''}</td>
+            <td>${u.email}</td>
+            <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+            <td>${u.is_banned ? '<span style="color:#ef4444;">Banned</span>' : '<span style="color:#22c55e;">Active</span>'}</td>
+            <td class="action-icons">
+                ${u.is_banned 
+                    ? `<i class="fas fa-check-circle" onclick="toggleBan('${u.id}', false)" title="Unban" style="color:#22c55e;"></i>`
+                    : `<i class="fas fa-ban" onclick="toggleBan('${u.id}', true)" title="Ban" style="color:#ef4444;"></i>`}
+                <i class="fas fa-edit" onclick="editUser('${u.id}')"></i>
+            </td>
+        </tr>
+    `).join('');
+    
+    const stats = document.getElementById('userStats');
+    if (stats) {
+        const total = users.length;
+        const active = users.filter(u => !u.is_banned).length;
+        const banned = users.filter(u => u.is_banned).length;
+        stats.innerHTML = `
+            <div class="stat-card"><h4>Total Users</h4><p>${total}</p></div>
+            <div class="stat-card"><h4>Active</h4><p>${active}</p></div>
+            <div class="stat-card"><h4>Banned</h4><p>${banned}</p></div>
+            <div class="stat-card"><h4>Admins</h4><p>${users.filter(u => ['admin','staff','superadmin'].includes(u.role)).length}</p></div>`;
+    }
+}
+
+async function toggleBan(id, ban) {
+    await window.supabaseClient.from('profiles').update({ is_banned: ban }).eq('id', id);
+    loadUsers();
+}
+
+// ============================================
+// ANNOUNCEMENTS
+// ============================================
+async function loadAnnouncements() {
+    const { data, error } = await window.supabaseClient.from('announcements').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    announcements = data || [];
+    renderAnnouncements();
+}
+
+function renderAnnouncements() {
+    const tbody = document.getElementById('announcementTableBody');
+    if (announcements.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No announcements. Click Create Announcement</td></tr>';
+        return;
+    }
+    tbody.innerHTML = announcements.map(a => `
+        <tr>
+            <td>${a.id}</td>
+            <td><strong>${a.title}</strong></td>
+            <td class="announcement-preview">${(a.content || '').substring(0, 60)}...</td>
+            <td>${new Date(a.created_at).toLocaleDateString()}</td>
+            <td><span class="status-badge status-${(a.status || 'published').toLowerCase()}">${a.status || 'Published'}</span></td>
+            <td class="action-icons">
+                <i class="fas fa-edit" onclick="editAnnouncement(${a.id})"></i>
+                <i class="fas fa-trash-alt" onclick="deleteAnnouncement(${a.id})"></i>
+            </td>
+        </tr>
+    `).join('');
+    
+    const stats = document.getElementById('announcementStats');
+    if (stats) {
+        const pub = announcements.filter(a => a.status === 'Published').length;
+        const draft = announcements.filter(a => a.status === 'Draft').length;
+        stats.innerHTML = `
+            <div class="stat-card"><h4>Total</h4><p>${announcements.length}</p></div>
+            <div class="stat-card"><h4>Published</h4><p>${pub}</p></div>
+            <div class="stat-card"><h4>Drafts</h4><p>${draft}</p></div>
+            <div class="stat-card"><h4>Latest</h4><p>${announcements[0] ? new Date(announcements[0].created_at).toLocaleDateString() : 'N/A'}</p></div>`;
+    }
+}
+
+function openAnnouncementModal(edit = false) {
+    document.getElementById('announcementModal').style.display = 'flex';
+    if (edit) {
+        document.getElementById('announcementModalTitle').textContent = 'Edit Announcement';
+        const a = announcements.find(a => a.id === editingId);
+        if (a) {
+            document.getElementById('announcementTitle').value = a.title;
+            document.getElementById('announcementContent').value = a.content;
+            document.getElementById('announcementStatus').value = a.status;
+        }
+    } else {
+        document.getElementById('announcementModalTitle').textContent = 'Create Announcement';
+        document.getElementById('announcementTitle').value = '';
+        document.getElementById('announcementContent').value = '';
+        document.getElementById('announcementStatus').value = 'Published';
+        editingId = null;
+    }
+}
+
+function closeAnnouncementModal() { document.getElementById('announcementModal').style.display = 'none'; }
+
+async function saveAnnouncement() {
+    const title = document.getElementById('announcementTitle').value.trim();
+    const content = document.getElementById('announcementContent').value.trim();
+    const status = document.getElementById('announcementStatus').value;
+    
+    if (!title || !content) { alert('Fill all fields'); return; }
+    
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    
+    if (editingId) {
+        await window.supabaseClient.from('announcements').update({ title, content, status, updated_at: new Date() }).eq('id', editingId);
+    } else {
+        await window.supabaseClient.from('announcements').insert({ title, content, status, created_by: user?.id });
+    }
+    
+    closeAnnouncementModal();
+    loadAnnouncements();
+}
+
+function editAnnouncement(id) { editingId = id; openAnnouncementModal(true); }
+
+async function deleteAnnouncement(id) {
+    if (!confirm('Delete this announcement?')) return;
+    await window.supabaseClient.from('announcements').delete().eq('id', id);
+    loadAnnouncements();
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check auth
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    if (!user) { window.location.href = 'login.html'; return; }
+    
+    const { data: profile } = await window.supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+    if (!profile || !['admin', 'staff', 'superadmin'].includes(profile.role)) {
+        window.location.href = 'market.html';
+        return;
+    }
+    
+    // Load initial data
+    loadProducts();
+    
+    // Button events
+    document.getElementById('addProductBtn')?.addEventListener('click', () => { editingId = null; openProductModal(); });
+    document.getElementById('saveProductBtn')?.addEventListener('click', saveProduct);
+    document.getElementById('cancelProductBtn')?.addEventListener('click', closeProductModal);
+    
+    document.getElementById('addDeliveryBtn')?.addEventListener('click', () => { editingId = null; openDeliveryModal(); });
+    document.getElementById('saveDeliveryBtn')?.addEventListener('click', saveDelivery);
+    document.getElementById('cancelDeliveryBtn')?.addEventListener('click', closeDeliveryModal);
+    
+    document.getElementById('addAnnouncementBtn')?.addEventListener('click', () => { editingId = null; openAnnouncementModal(); });
+    document.getElementById('saveAnnouncementBtn')?.addEventListener('click', saveAnnouncement);
+    document.getElementById('cancelAnnouncementBtn')?.addEventListener('click', closeAnnouncementModal);
+    
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
+    });
+    
+    // Dropdown
+    const pm = document.querySelector('.profile-menu');
+    const pb = document.querySelector('.profile-btn');
+    const dd = document.querySelector('.dropdown');
+    if (pb && dd) {
+        pb.addEventListener('click', e => { e.stopPropagation(); pm.classList.toggle('active'); });
+        document.addEventListener('click', () => pm.classList.remove('active'));
+        dd.addEventListener('click', e => e.stopPropagation());
+    }
+});
+</script>
+
+</body>
+</html>

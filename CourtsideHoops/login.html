@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Courtside Hoops</title>
+  <link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+  <link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+  <link rel="stylesheet" href="../CourtsideHoops/css/account.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    .debug-box {
+      background: #1a1a1a;
+      color: #00ff88;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    .debug-box .err { color: #ff4444; }
+    .debug-box .ok { color: #00ff88; }
+    .debug-box .warn { color: #ffaa00; }
+    
+    .toggle-buttons {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 5px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: white;
+      color: #ef4444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    body.dark .toggle-buttons {
+      background: #1e293b;
+    }
+    body.dark .toggle-btn {
+      color: #94a3b8;
+    }
+    body.dark .toggle-btn.active {
+      background: #334155;
+      color: #f87171;
+    }
+  </style>
+</head>
+
+<body data-page="login">
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="fas fa-home"></i><span>Home</span></a></li>
+    <li><a href="gallery.html"><i class="fas fa-images"></i><span>Gallery</span></a></li>
+    <li><a href="about.html"><i class="fas fa-users"></i><span>About Us</span></a></li>
+    <li><a href="contact.html"><i class="fas fa-envelope"></i><span>Contact</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span class="tooltip">Cart</span></a>
+    <a href="login.html" class="nav-btn nav-login"><i class="fas fa-user"></i><span class="tooltip">Profile</span></a>
+  </div>
+</header>
+
+<main class="auth-page">
+  <div class="auth-card">
+
+    <h2 class="auth-title" id="titleText">Welcome Back</h2>
+
+    <!-- TOGGLE BUTTONS - easier to click -->
+    <div class="toggle-buttons">
+      <button class="toggle-btn active" id="loginToggleBtn" onclick="switchToLogin()">Login</button>
+      <button class="toggle-btn" id="signupToggleBtn" onclick="switchToSignup()">Sign Up</button>
+    </div>
+
+    <!-- DEBUG BOX -->
+    <div class="debug-box" id="debugBox">
+      <div id="debugContent"></div>
+    </div>
+
+    <form id="loginForm">
+      
+      <!-- Full Name - hidden in login mode -->
+      <div class="input-group" id="nameField" style="display:none;">
+        <label>Full Name</label>
+        <div class="input-box">
+          <input type="text" id="fullname" placeholder="Enter your full name">
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email</label>
+        <div class="input-box">
+          <input type="email" id="email" placeholder="Enter your email">
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-box">
+          <input type="password" id="password" placeholder="••••••••">
+        </div>
+      </div>
+
+      <!-- Confirm Password - hidden in login mode -->
+      <div class="input-group" id="confirmField" style="display:none;">
+        <label>Confirm Password</label>
+        <div class="input-box">
+          <input type="password" id="confirmPassword" placeholder="Repeat password">
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button class="auth-btn" type="submit" id="authBtn" disabled style="opacity:0.5; cursor:not-allowed;">Login</button>
+
+      <!-- Terms -->
+      <div class="terms" style="margin-top:15px;">
+        <label class="terms-label">
+          <input type="checkbox" id="termsCheck">
+          I agree to the Terms & Agreements
+        </label>
+      </div>
+
+      <!-- Status -->
+      <div id="loginStatus" style="display:none; padding:12px; border-radius:8px; margin-top:15px; text-align:center; font-weight:500;"></div>
+
+    </form>
+
+    <!-- Debug toggle -->
+    <button onclick="toggleDebug()" style="margin-top:15px; background:#6b7280; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12px; width:100%;">
+      🐛 Show/Hide Debug Log
+    </button>
+
+    <a href="index.html" class="back-link">← Back to Home</a>
+
+  </div>
+</main>
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ============================================
+// GLOBAL VARIABLES
+// ============================================
+let supabaseClient = null;
+let isSignupMode = false;
+
+// ============================================
+// DEBUG LOGGING
+// ============================================
+function log(message, type = 'info') {
+    const icons = { ok: '✅', err: '❌', warn: '⚠️', info: 'ℹ️' };
+    const cssClass = { ok: 'ok', err: 'err', warn: 'warn', info: '' };
+    
+    console.log(`[Auth] ${message}`);
+    
+    const content = document.getElementById('debugContent');
+    if (content) {
+        content.innerHTML += `<span class="${cssClass[type]}">${icons[type]} ${message}</span><br>`;
+        content.scrollTop = content.scrollHeight;
+    }
+}
+
+function toggleDebug() {
+    const box = document.getElementById('debugBox');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+// ============================================
+// INITIALIZE SUPABASE
+// ============================================
+function initSupabase() {
+    log('Checking Supabase SDK...');
+    
+    if (typeof supabase === 'undefined' || !supabase) {
+        log('Supabase SDK not loaded yet, waiting...', 'warn');
+        
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(
+                'https://gaqekdspovcprscseduu.supabase.co',
+                'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+            );
+            log('Supabase client created successfully!', 'ok');
+            return true;
+        }
+        
+        return false;
+    }
+    
+    try {
+        supabaseClient = supabase.createClient(
+            'https://gaqekdspovcprscseduu.supabase.co',
+            'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+        );
+        log('Supabase client created!', 'ok');
+        return true;
+    } catch (e) {
+        log('Failed to create Supabase client: ' + e.message, 'err');
+        return false;
+    }
+}
+
+// ============================================
+// SWITCH BETWEEN LOGIN AND SIGNUP
+// ============================================
+function switchToLogin() {
+    isSignupMode = false;
+    
+    document.getElementById('nameField').style.display = 'none';
+    document.getElementById('confirmField').style.display = 'none';
+    document.getElementById('titleText').textContent = 'Welcome Back';
+    document.getElementById('authBtn').textContent = 'Login';
+    
+    document.getElementById('loginToggleBtn').classList.add('active');
+    document.getElementById('signupToggleBtn').classList.remove('active');
+    
+    document.getElementById('loginStatus').style.display = 'none';
+    
+    log('Switched to Login mode');
+}
+
+function switchToSignup() {
+    isSignupMode = true;
+    
+    document.getElementById('nameField').style.display = 'block';
+    document.getElementById('confirmField').style.display = 'block';
+    document.getElementById('titleText').textContent = 'Create Account';
+    document.getElementById('authBtn').textContent = 'Sign Up';
+    
+    document.getElementById('signupToggleBtn').classList.add('active');
+    document.getElementById('loginToggleBtn').classList.remove('active');
+    
+    document.getElementById('loginStatus').style.display = 'none';
+    
+    log('Switched to Sign Up mode');
+}
+
+// ============================================
+// REDIRECT BASED ON ROLE
+// ============================================
+// ============================================
+// REDIRECT BASED ON ROLE
+// ============================================
+async function redirectByRole(userId) {
+    try {
+        // Small delay to ensure session is fully set
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        log('Fetching profile for user: ' + userId);
+        
+        // Try to get profile
+        const { data: profile, error } = await supabaseClient
+            .from('profiles')
+            .select('role')
+            .eq('id', userId)
+            .maybeSingle();
+        
+        if (error) {
+            log('Profile fetch error: ' + error.message, 'err');
+            log('Error code: ' + error.code, 'err');
+            log('Error details: ' + JSON.stringify(error), 'err');
+            
+            // Fallback: try to read directly without RLS using anon key
+            const role = 'user';
+            log('Fallback: using default role ' + role, 'warn');
+            
+            const routes = {
+                'superadmin': 'superadmin.html',
+                'admin': 'admin-dashboard.html',
+                'staff': 'admin-dashboard.html',
+                'user': 'market.html'
+            };
+            
+            window.location.href = routes[role] || 'market.html';
+            return;
+        }
+        
+        if (!profile) {
+            log('No profile found for user', 'warn');
+            log('This means the trigger might not have created the profile', 'warn');
+            window.location.href = 'market.html';
+            return;
+        }
+        
+        const role = profile.role || 'user';
+        log('User role from database: ' + role, 'ok');
+        
+        const routes = {
+    'superadmin': 'superadmin.html', 
+    'admin': 'admin-dashboard.html',
+    'staff': 'admin-dashboard.html',
+    'user': 'market.html'
+};
+        
+        const target = routes[role] || 'market.html';
+        log('Redirecting to: ' + target, 'ok');
+        
+        window.location.href = target;
+        
+    } catch (err) {
+        log('Error during redirect: ' + err.message, 'err');
+        window.location.href = 'market.html';
+    }
+}
+
+// ============================================
+// SHOW STATUS
+// ============================================
+function showStatus(message, type) {
+    log(message, type === 'success' ? 'ok' : type === 'error' ? 'err' : 'info');
+    
+    const el = document.getElementById('loginStatus');
+    el.textContent = message;
+    el.style.display = 'block';
+    
+    if (type === 'success') {
+        el.style.color = '#16a34a';
+        el.style.background = '#f0fdf4';
+        el.style.border = '1px solid #bbf7d0';
+    } else if (type === 'error') {
+        el.style.color = '#dc2626';
+        el.style.background = '#fef2f2';
+        el.style.border = '1px solid #fecaca';
+    } else {
+        el.style.color = '#2563eb';
+        el.style.background = '#eff6ff';
+        el.style.border = '1px solid #bfdbfe';
+    }
+}
+
+// ============================================
+// TEST CONNECTION
+// ============================================
+async function testConnection() {
+    log('Testing Supabase connection...');
+    
+    if (!supabaseClient) {
+        log('No Supabase client available!', 'err');
+        return;
+    }
+    
+    try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) {
+            log('Auth error: ' + error.message, 'err');
+        } else {
+            log('Auth service is working!', 'ok');
+        }
+        
+        const { error: dbError } = await supabaseClient
+            .from('profiles')
+            .select('count', { count: 'exact', head: true });
+        
+        if (dbError) {
+            log('Database error: ' + dbError.message, 'err');
+        } else {
+            log('Database connection is working!', 'ok');
+        }
+    } catch (e) {
+        log('Connection test failed: ' + e.message, 'err');
+    }
+}
+
+// ============================================
+// PAGE INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    log('Page loaded');
+    
+    // Try to init Supabase
+    let initialized = initSupabase();
+    
+    // Retry if needed
+    if (!initialized) {
+        setTimeout(() => {
+            initialized = initSupabase();
+            if (initialized) {
+                log('Supabase initialized on retry', 'ok');
+                testConnection();
+            } else {
+                log('Failed to initialize Supabase', 'err');
+            }
+        }, 1000);
+    } else {
+        setTimeout(testConnection, 500);
+    }
+    
+    // Show debug by default
+    document.getElementById('debugBox').style.display = 'block';
+    
+    // Terms checkbox
+    const termsCheck = document.getElementById('termsCheck');
+    const authBtn = document.getElementById('authBtn');
+    
+    termsCheck.addEventListener('change', function() {
+        authBtn.disabled = !this.checked;
+        authBtn.style.opacity = this.checked ? '1' : '0.5';
+        authBtn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
+    });
+    
+    // ============================================
+    // FORM SUBMISSION
+    // ============================================
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        log('Form submitted (mode: ' + (isSignupMode ? 'Sign Up' : 'Login') + ')');
+        
+        if (!supabaseClient) {
+            showStatus('Connection not ready. Please wait...', 'error');
+            log('Supabase client not available', 'err');
+            return;
+        }
+        
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        
+        log('Email: ' + email);
+        log('Password length: ' + (password ? password.length : 0));
+        
+        if (!email || !password) {
+            showStatus('Please fill in email and password', 'error');
+            return;
+        }
+        
+        if (isSignupMode) {
+            // ============ SIGN UP ============
+            const fullName = document.getElementById('fullname').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!fullName) {
+                showStatus('Please enter your full name', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showStatus('Passwords do not match', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showStatus('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            log('Starting sign up...');
+            showStatus('Creating account...', 'info');
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: email.split('@')[0],
+                            full_name: fullName
+                        }
+                    }
+                });
+                
+                if (error) {
+                    log('Sign up error: ' + error.message, 'err');
+                    showStatus(error.message, 'error');
+                    return;
+                }
+                
+                log('Sign up successful!', 'ok');
+                log('User ID: ' + data.user.id, 'ok');
+                
+                if (data.session) {
+                    log('User is logged in automatically', 'ok');
+                    log('New user role: user (default)', 'ok');
+                    showStatus('Account created! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'market.html';
+                    }, 1500);
+                } else {
+                    log('Email confirmation may be required', 'warn');
+                    showStatus('Account created! You can now log in.', 'success');
+                    switchToLogin();
+                }
+                
+            } catch (err) {
+                log('Unexpected error: ' + err.message, 'err');
+                showStatus(err.message, 'error');
+            }
+            
+           } else {
+            // ============ LOGIN ============
+            log('Starting login...');
+            showStatus('Logging in...', 'info');
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    log('Login error: ' + error.message, 'err');
+                    showStatus(error.message, 'error');
+                    return;
+                }
+                
+                log('Login successful!', 'ok');
+                log('User ID: ' + data.user.id, 'ok');
+                
+                showStatus('Login successful! Redirecting...', 'success');
+                
+                // 🔥 FIXED: Redirect based on role from database
+                setTimeout(() => {
+                    redirectByRole(data.user.id);
+                }, 800);
+                
+            } catch (err) {
+                log('Unexpected error: ' + err.message, 'err');
+                showStatus(err.message, 'error');
+            }
+        }
+    });
+    
+    log('Setup complete - ready!', 'ok');
+});
+</script>
+
+</body>
+</html>

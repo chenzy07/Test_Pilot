@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Marketplace | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.cart-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #22c55e;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10000;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-weight: 500;
+}
+.cart-toast.show { transform: translateX(0); }
+.cart-toast i { font-size: 18px; }
+
+.cart-badge {
+  position: absolute;
+  top: -8px; right: -8px;
+  background: #ef4444; color: white;
+  font-size: 10px; font-weight: bold;
+  min-width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+.nav-btn { position: relative; }
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="market.html"><i class="fas fa-store"></i><span>Market</span></a></li>
+    <li><a href="item.html"><i class="fas fa-clock-rotate-left"></i><span>History</span></a></li>
+    <li><a href="shop.html"><i class="fas fa-basket-shopping"></i><span>Shop</span></a></li>
+    <li><a href="announcement.html"><i class="fas fa-bullhorn"></i><span>News</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-btn" id="cartLink">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="tooltip">Cart</span>
+      <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+    </a>
+    <div class="profile-menu">
+      <button class="nav-btn profile-btn">
+        <i class="fas fa-user"></i>
+        <span class="tooltip">Profile</span>
+      </button>
+      <div class="dropdown">
+        <a href="account.html"><i class="fas fa-id-card"></i> My Account</a>
+        <button id="darkModeToggle"><i id="darkIcon" class="fas fa-moon"></i></button>
+        <button class="logout-button" data-logout><i class="fas fa-right-from-bracket"></i> Log Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="cartToast" class="cart-toast">
+  <i class="fas fa-check-circle"></i>
+  <span>Added to cart!</span>
+</div>
+
+<div class="page">
+<aside class="sidebar">
+  <div class="sidebar-content">
+    <h3>Filters</h3>
+    <div class="filter"><p>Select Cards</p><button class="game-btn">NBA</button></div>
+    <div class="filter"><p>Price</p><input type="text" placeholder="$ 0.00"><input type="text" placeholder="$ ∞"></div>
+    <div class="filter"><p>Rarity</p>
+      <div class="rarity">
+        <div class="r legendary"></div><div class="r epic"></div>
+        <div class="r rare"></div><div class="r common"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="socials"><div class="social">📷</div><div class="social">✈️</div><div class="social">▶️</div><div class="social">🎮</div></div>
+    <p class="disclaimer">COURTSIDE HOOPS is not affiliated, associated, or partnered with National Basketball Association.</p>
+    <p class="copyright">© 2025–2026 COURTSIDE HOOPS All Rights Reserved</p>
+    <div class="contact"><p>support@courtsidehoops.gg</p><p>Business hours: 09:00–18:00</p></div>
+    <div class="sidebar-links"><div class="sidebar-btn">Terms of Service →</div><div class="sidebar-btn">Privacy Policy →</div><div class="sidebar-btn">AML KYC Policy →</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="banner"><h2>NEW NBA CARD?</h2><p>You will never lose anything with CourtsideHoops</p></div>
+  <br>
+  <div class="categories">
+    <button>Superstars</button><button>Hall of Famers</button><button>MVP Winner</button>
+    <button>Teams</button><button>Underrated Players</button><button>Rising Stars</button><button>Rookie</button>
+  </div>
+  <div class="search-bar"><input type="text" id="search" placeholder="Quick search"></div>
+
+  <!-- DYNAMIC PRODUCTS FROM DATABASE -->
+  <div class="items" id="items">
+    <p style="text-align:center;padding:40px;">Loading products...</p>
+  </div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-content">
+      <div class="modal-image"><img id="modalImg"></div>
+      <div class="modal-details">
+        <h2 id="modalName"></h2>
+        <span class="rarity-tag" id="modalRarity"></span>
+        <p class="modal-desc">Premium NBA collectible card. Limited supply, high demand.</p>
+        <div class="modal-bottom">
+          <h3 id="modalPrice"></h3>
+          <button class="add-btn" id="modalAddToCart">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    window.supabaseClient = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+
+<script src="../CourtsideHoops/js/products-loader.js"></script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script src="../CourtsideHoops/js/cart.js"></script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+
+<script>
+// ============================================
+// ALL INITIALIZATION IN ONE PLACE
+// ============================================
+document.addEventListener('DOMContentLoaded', async function() {
+    
+    // ---- PROFILE DROPDOWN ----
+    const profileMenu = document.querySelector('.profile-menu');
+    const profileBtn = document.querySelector('.profile-btn');
+    const dropdown = document.querySelector('.dropdown');
+    
+    if (profileBtn && dropdown) {
+        profileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileMenu.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function() {
+            profileMenu.classList.remove('active');
+        });
+        
+        dropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // ---- LOAD PRODUCTS ----
+    await ProductsLoader.renderToContainer('items');
+    
+    // ---- INIT MODAL ----
+    initModal();
+    
+    // ---- CART ----
+    if (typeof CourtsideCart !== 'undefined') {
+        CourtsideCart.bindAddToCartButtons();
+        CourtsideCart.updateBadge();
+    }
+});
+
+// ============================================
+// MODAL FUNCTION
+// ============================================
+function initModal() {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const modalImg = document.getElementById('modalImg');
+    const modalName = document.getElementById('modalName');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalAddBtn = document.getElementById('modalAddToCart');
+    
+    if (!modal) return;
+    
+    let currentCard = null;
+    let scrollY = 0;
+    
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+        currentCard = null;
+    }
+    
+    document.querySelectorAll('.card').forEach(card => {
+        card.onclick = function(e) {
+            if (e.target.closest('.add-btn')) return;
+            scrollY = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            currentCard = {
+                name: card.dataset.name,
+                price: card.dataset.price,
+                img: card.dataset.img,
+                rarity: card.dataset.rarity
+            };
+            modalImg.src = card.dataset.img || '';
+            modalName.textContent = card.dataset.name;
+            modalPrice.textContent = '₱' + parseInt(card.dataset.price).toLocaleString();
+            const rarityEl = document.getElementById('modalRarity');
+            if (rarityEl) rarityEl.textContent = card.dataset.rarity;
+            modal.classList.add('active');
+        };
+    });
+    
+    modalClose.onclick = closeModal;
+    modal.onclick = function(e) { if (e.target === modal) closeModal(); };
+    
+    if (modalAddBtn) {
+        modalAddBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (!currentCard) return;
+            if (typeof CourtsideCart !== 'undefined') {
+                CourtsideCart.addItem(currentCard);
+            }
+            this.textContent = '✓ Added!';
+            this.style.background = '#22c55e';
+            setTimeout(() => {
+                this.textContent = 'Add to Cart';
+                this.style.background = '';
+            }, 1000);
+        };
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+}
+</script>
+
+</body>
+</html>

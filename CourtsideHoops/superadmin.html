@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Super Admin | Courtside Hoops Analytics</title>
+  <!-- Your existing CSS links -->
+  <link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+  <link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Chart.js CDN for modern charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <style>
+    body {
+      background: var(--bg, #f8fafc);
+      overflow-x: hidden;
+    }
+
+    /* Dashboard layout with sidebar */
+    .super-layout {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 70px - 200px);
+    }
+
+    .content-super {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-x: auto;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card-super {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.2s;
+    }
+
+    .stat-card-super:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-info h4 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--primary, #ef4444);
+      line-height: 1.2;
+    }
+
+    .stat-icon {
+      font-size: 42px;
+      color: var(--primary-light, #f87171);
+      opacity: 0.7;
+    }
+
+    /* Charts row */
+    .charts-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
+    canvas {
+      max-height: 280px;
+      width: 100%;
+    }
+
+    /* Action Buttons Panel */
+    .action-panel {
+      margin-bottom: 32px;
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 18px 28px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .super-btn {
+      background: var(--primary, #ef4444);
+      border: none;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .super-btn:hover {
+      background: var(--primary-dark, #dc2626);
+      transform: translateY(-1px);
+    }
+
+    /* Admin table */
+    .admin-table-container {
+      overflow-x: auto;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .admin-table th {
+      text-align: left;
+      padding: 16px 20px;
+      background: rgba(239, 68, 68, 0.06);
+      border-bottom: 2px solid var(--border);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .admin-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    .admin-table tr:hover {
+      background: rgba(239, 68, 68, 0.03);
+    }
+
+    .role-badge-admin {
+      background: #ef444420;
+      color: #dc2626;
+      padding: 5px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    body.dark .role-badge-admin {
+      background: #ef444430;
+      color: #fca5a5;
+    }
+
+    .action-icons i {
+      margin: 0 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.2s;
+      color: var(--text-muted);
+    }
+
+    .action-icons i:hover {
+      color: var(--primary);
+    }
+
+    .search-bar-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 18px;
+    }
+
+    .search-bar-container input {
+      border: none;
+      background: transparent;
+      padding: 8px 0;
+      font-size: 0.85rem;
+      width: 200px;
+      outline: none;
+      color: var(--text);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      margin-top: 20px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-content {
+      background: var(--surface);
+      padding: 28px;
+      border-radius: 28px;
+      width: 460px;
+      max-width: 90%;
+    }
+
+    .modal-content h3 {
+      color: var(--text);
+    }
+
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button:first-child {
+      background: #6b7280;
+      color: white;
+    }
+
+    .modal-buttons button:last-child {
+      background: var(--primary);
+      color: white;
+    }
+
+    .empty-row td {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="super-dashboard-wrapper">
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon" onerror="this.style.display='none'">
+      <span>COURTSIDE HOOPS</span>
+    </div>
+    <div class="nav-right">
+      <div class="profile-menu">
+        <button class="nav-btn profile-btn">
+          <i class="fas fa-user"></i>
+          <span class="tooltip">Super Admin</span>
+        </button>
+        <div class="dropdown">
+          <button id="darkModeToggle">
+            <i id="darkIcon" class="fas fa-moon"></i>
+            <span id="darkModeText"></span>
+          </button>
+          <button class="logout-button" id="superLogoutBtn"><i class="fas fa-right-from-bracket"></i> Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR + MAIN CONTENT -->
+  <div class="super-layout">
+    <!-- SIDEBAR - Using your existing sidebar structure -->
+    <aside class="sidebar">
+      <div class="sidebar-links">
+        <a class="sidebar-link active" href="javascript:void(0)" onclick="switchSuperSection('analytics-section', this)">
+          <i class="fas fa-chart-pie"></i>
+          <span>Analytics Dashboard</span>
+        </a>
+        <a class="sidebar-link" href="javascript:void(0)" onclick="switchSuperSection('admin-users-section', this)">
+          <i class="fas fa-user-shield"></i>
+          <span>Create Admin User</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="content-super">
+      <!-- SECTION 1: ANALYTICS DASHBOARD -->
+      <div id="analytics-section" class="super-section">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card-super">
+            <div class="stat-info">
+              <h4><i class="fas fa-users"></i> Total Admin Accounts</h4>
+              <div class="stat-number" id="totalAdminsCount">0</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+          </div>
+          <div class="stat-card-super">
+            <div class="stat-info">
+              <h4><i class="fas fa-store"></i> Total Products</h4>
+              <div class="stat-number" id="totalProductsCount">0</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+          </div>
+          <div class="stat-card-super">
+            <div class="stat-info">
+              <h4><i class="fas fa-truck"></i> Active Deliveries</h4>
+              <div class="stat-number" id="totalDeliveriesCount">0</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-truck-fast"></i></div>
+          </div>
+          <div class="stat-card-super">
+            <div class="stat-info">
+              <h4><i class="fas fa-megaphone"></i> Live Announcements</h4>
+              <div class="stat-number" id="liveAnnouncementsCount">0</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-bullhorn"></i></div>
+          </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Monthly Revenue Trend (2025)</h3>
+            <canvas id="revenueChart" width="400" height="250"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3><i class="fas fa-chart-bar"></i> Admin Roles Distribution</h3>
+            <canvas id="rolesChart" width="400" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3><i class="fas fa-shopping-cart"></i> Weekly Orders Overview</h3>
+            <canvas id="ordersChart" width="400" height="250"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3><i class="fas fa-chart-pie"></i> Delivery Status Analytics</h3>
+            <canvas id="deliveryStatusChart" width="400" height="250"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: ADMIN USER MANAGEMENT -->
+      <div id="admin-users-section" class="super-section" style="display:none;">
+        <div class="action-panel">
+          <div class="panel-title">
+            <i class="fas fa-key"></i> Admin Account Management
+          </div>
+          <div class="button-group">
+            <button class="super-btn" id="createAdminBtn"><i class="fas fa-user-plus"></i> Create New Admin Account</button>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2><i class="fas fa-user-tie"></i> All Admin & Manager Accounts</h2>
+          <div class="search-bar-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="adminSearchInput" placeholder="Search by name/email..." onkeyup="filterAdminAccounts()">
+            <i class="fas fa-times-circle search-clear" onclick="clearAdminSearch()" style="cursor: pointer;"></i>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adminTableBody"><tr class="empty-row"><td colspan="6">Loading admin accounts...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Placeholder sections for other menu items -->
+      <div id="product-section" class="super-section" style="display:none;">
+        <div class="action-panel">
+          <div class="panel-title"><i class="fas fa-box"></i> Product Management</div>
+          <p>Product management content will appear here...</p>
+        </div>
+      </div>
+      <div id="delivery-section" class="super-section" style="display:none;">
+        <div class="action-panel">
+          <div class="panel-title"><i class="fas fa-truck"></i> Delivery Status</div>
+          <p>Delivery status content will appear here...</p>
+        </div>
+      </div>
+      <div id="user-section" class="super-section" style="display:none;">
+        <div class="action-panel">
+          <div class="panel-title"><i class="fas fa-users"></i> User Management</div>
+          <p>User management content will appear here...</p>
+        </div>
+      </div>
+      <div id="announcement-section" class="super-section" style="display:none;">
+        <div class="action-panel">
+          <div class="panel-title"><i class="fas fa-bullhorn"></i> Announcements</div>
+          <p>Announcements content will appear here...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <h3>COURTSIDE HOOPS</h3>
+        <p class="disclaimer">Super Admin Portal — Full Control & Analytics</p>
+        <p class="copyright">© 2025–2026 All Rights Reserved</p>
+      </div>
+      <div class="footer-center">
+        <h4>Secure Access</h4>
+        <p>superadmin@courtsidehoops.gg</p>
+        <p>Audit logs active</p>
+      </div>
+      <div class="footer-right">
+        <h4>System</h4>
+        <div class="footer-links"><div class="footer-btn">Audit Trail →</div><div class="footer-btn">Security →</div></div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- MODAL: Create/Edit Admin Account -->
+<div id="adminModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="adminModalTitle">Create Admin Account</h3>
+    <input type="text" id="adminUsername" placeholder="Full name / Username">
+    <input type="email" id="adminEmail" placeholder="Email address">
+    <select id="adminRoleSelect">
+      <option value="admin">Administrator (Full Access)</option>
+      <option value="manager">Manager (Limited)</option>
+      <option value="supervisor">Supervisor (View only)</option>
+    </select>
+    <input type="password" id="adminPassword" placeholder="Password (min 4 chars)">
+    <div class="modal-buttons"><button id="cancelAdminBtn">Cancel</button><button id="saveAdminBtn">Save Account</button></div>
+  </div>
+</div>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const supabase = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+<script src="../CourtsideHoops/js/superadmin.js"></script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script src="../CourtsideHoops/js/auth.js"></script>
+</body>
+</html>

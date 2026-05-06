@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* EXTRA STYLES FOR SALES PAGE */
+body{overflow-y:auto;}
+
+.container{display:flex;min-height:100vh;}
+
+/* MAIN */
+.main{flex:1;padding:25px;}
+
+/* ALERT */
+.alert{
+  background:#e0f2fe;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-size:14px;
+}
+
+/* STATS */
+.stats{
+  display:flex;
+  gap:15px;
+  margin-bottom:15px;
+}
+.stat{
+  flex:1;
+  background:white;
+  padding:15px;
+  border-radius:10px;
+}
+.stat h4{font-size:13px;color:#777;}
+.stat p{font-size:18px;font-weight:700;}
+
+/* ACCOUNT SECTION */
+.section{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+}
+
+.rating{
+  background:#dcfce7;
+  color:#16a34a;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
+  font-weight:600;
+}
+
+.add-account{
+  height:120px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px dashed #ddd;
+  border-radius:10px;
+  cursor:pointer;
+  color:#777;
+}
+
+/* RIGHT PANEL */
+.flex{
+  display:flex;
+  gap:20px;
+}
+
+.right-panel{
+  width:300px;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+.btn{
+  display:block;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#f97316;
+  color:white;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+/* === Dark Mode for Sales Page === */
+body.dark .main,
+body.dark .container {
+  background: #111;
+  color: #eee;
+}
+
+body.dark .alert {
+  background: #0c4a6e;
+  color: #fff;
+}
+body.dark .stat {
+  background: #111;
+  color: #eee;
+  box-shadow: 0 2px 6px rgba(255,255,255,0.05);
+}
+body.dark .stat h4 {
+  color: #ccc;
+}
+body.dark .section {
+  background: #111;
+  color: #eee;
+}
+body.dark .rating {
+  background: #065f46;
+  color: #fff;
+}
+body.dark .add-account {
+  border: 2px dashed #444;
+  color: #ccc;
+  background: #111;
+}
+body.dark .card {
+  background: #1a1a1a;
+  color: #eee;
+  box-shadow: 0 2px 6px rgba(255,255,255,0.05);
+}
+body.dark .btn {
+  background: #ef4444;
+  color: #fff;
+}
+body.dark .btn:hover {
+  background: #dc2626;
+}
+
+/* TABLE STYLES */
+.inventory-table-container, .onsale-table-container {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+body.dark table {
+  background: #1a1a1a;
+  color: #eee;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.dark th, body.dark td {
+  border-bottom-color: #333;
+}
+
+th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+body.dark th {
+  background-color: #222;
+  color: #ddd;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #f97316;
+  color: white;
+}
+
+.btn-small-outline {
+  background: transparent;
+  border: 1px solid #f97316;
+  color: #f97316;
+  padding: 4px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+body.dark .btn-small-outline {
+  color: #f97316;
+  border-color: #f97316;
+}
+
+/* Quick Sale section */
+.quick-sale-panel {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+body.dark .quick-sale-panel {
+  background: #111;
+}
+
+.quick-sale-panel input, .quick-sale-panel select {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 8px 0 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+}
+
+body.dark .quick-sale-panel input,
+body.dark .quick-sale-panel select {
+  background: #1a1a1a;
+  border-color: #444;
+  color: #eee;
+}
+
+.preview-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.img-preview-box {
+  width: 50px;
+  height: 50px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.hidden-section {
+  display: none;
+}
+
+.active-section {
+  display: block;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+ <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+  COURTSIDE HOOPS
+</div>
+
+  <ul class="nav-links">
+    <li>
+      <a href="market.html">
+        <i class="fas fa-store"></i>
+        <span>Market</span>
+      </a>
+    </li>
+    <li>
+      <a href="item.html">
+        <i class="fas fa-clock-rotate-left"></i>
+        <span>History</span>
+      </a>
+    </li>
+    <li>
+      <a href="shop.html">
+        <i class="fas fa-basket-shopping"></i>
+        <span>Shop</span>
+      </a>
+    </li>
+    <li>
+      <a href="announcement.html">
+        <i class="fas fa-bullhorn"></i>
+        <span>News</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="nav-right">
+
+    <!-- Cart with badge -->
+    <a href="cart.html" class="nav-btn" id="cartLink">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="tooltip">Cart</span>
+      <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+    </a>
+
+    <!-- Profile -->
+    <div class="profile-menu">
+      <button class="nav-btn profile-btn">
+        <i class="fas fa-user"></i>
+        <span class="tooltip">Profile</span>
+      </button>
+
+      <div class="dropdown">
+        <a href="account.html">
+          <i class="fas fa-id-card"></i> My Account
+        </a>
+
+        <button id="darkModeToggle">
+        <i id="darkIcon" class="fas fa-moon"></i>
+        </button>
+
+        <button class="logout-button" data-logout>
+          <i class="fas fa-right-from-bracket"></i> Log Out
+        </button>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-links">
+      <a class="sidebar-link" href="item.html"><i class="fas fa-box"></i><span>Purchased Items</span></a>
+      <a class="sidebar-link" href="item.html"><i class="fas fa-clock-rotate-left"></i><span>History</span></a>
+      <h3 class="sidebar-title">For Sellers</h3>
+      <a class="sidebar-link active" onclick="showSection('account-section', event)"><i class="fas fa-link"></i><span>Linked Accounts</span></a>
+      <a class="sidebar-link" onclick="showSection('inventory-section', event)"><i class="fas fa-boxes-stacked"></i><span>Inventory</span></a>
+      <a class="sidebar-link" onclick="showSection('isale-section', event)"><i class="fas fa-tags"></i><span>Items on Sale</span></a>
+      <a class="sidebar-link" onclick="showSection('qsale-section', event)"><i class="fas fa-bolt"></i><span>Quick Sale</span></a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="alert">We recommend using a separate account for selling to avoid errors.</div>
+    <div class="stats">
+      <div class="stat"><h4>Total Income</h4><p>₱0.00</p></div>
+      <div class="stat"><h4>Sales</h4><p>0</p></div>
+      <div class="stat"><h4>Success Rate</h4><p>0%</p></div>
+    </div>
+    
+    <div class="flex">
+      <div style="flex:1;">
+        <!-- Linked Accounts Section -->
+        <div id="account-section" class="section active-section">
+          <h3>Your Accounts</h3>
+          <div class="rating">Seller Rating: 70/100</div>
+          <p style="color:#777;margin-bottom:10px;">Link accounts to start selling.</p>
+          <div class="add-account">+ Add Account</div>
+        </div>
+
+        <!-- Inventory Section - NBA CARDS ONLY with ID column first -->
+        <div id="inventory-section" class="section hidden-section">
+          <h3>Inventory Management</h3>
+          <div class="rating">Your NBA Card Collection</div>
+          <div class="inventory-table-container">
+            <table id="inventory-table">
+              <thead>
+                <tr><th>ID</th><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th></tr>
+              </thead>
+              <tbody id="inventory-tbody"></tbody>
+            </table>
+          </div>
+          <div class="add-account" style="margin-top:15px; height:60px;" onclick="addSampleCard()">+ Add New NBA Card</div>
+        </div>
+
+        <!-- Items on Sale Section - NBA CARDS ONLY -->
+        <div id="isale-section" class="section hidden-section">
+          <h3>Items on Sale</h3>
+          <div class="rating">Active NBA Card Listings</div>
+          <div class="onsale-table-container">
+            <table id="onsale-table">
+              <thead>
+                <tr><th>ID</th><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th></tr>
+              </thead>
+              <tbody id="onsale-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Quick Sale Section -->
+        <div id="qsale-section" class="section hidden-section">
+          <h3>Quick Sale</h3>
+          <div class="quick-sale-panel">
+            <p style="margin-bottom:10px;">List an NBA card instantly</p>
+            <div><label>Card Name:</label><input type="text" id="qs-product-name" placeholder="e.g., LeBron James Rookie Card"></div>
+            <div><label>Category:</label><select id="qs-category"><option>Rookie Card</option><option>Autograph Card</option><option>Relic/Memorabilia</option><option>Parallel/Insert</option><option>Base Card</option></select></div>
+            <div><label>Price (₱):</label><input type="number" id="qs-price" placeholder="0.00"></div>
+            <div><label>Stock:</label><input type="number" id="qs-stock" value="1"></div>
+            <div><label>Card Image URL (optional):</label><input type="text" id="qs-image-url" placeholder="https://... or leave empty"></div>
+            <div class="preview-image"><span>Preview:</span><div class="img-preview-box" id="quick-image-preview">🃏</div></div>
+            <button class="btn" style="margin-top:10px;" onclick="addQuickSaleItem()">Publish to Sale</button>
+          </div>
+          <div style="margin-top:15px;"><h4>Recently Added Cards</h4><div id="quick-sale-feed" style="font-size:13px; color:#777;">No items yet.</div></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="card"><h4>Store Link</h4><p style="font-size:13px;color:#777;">Share your store easily.</p><input type="text" value="yourstore.link" style="width:100%;padding:8px;margin-top:10px;border:1px solid #ddd;border-radius:6px;"><button class="btn">Edit</button></div>
+        <div class="card"><h4>Share</h4><p style="font-size:13px;color:#777;">Share your store link.</p><button class="btn">Share Link →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-left">
+      <h3>COURTSIDE HOOPS</h3>
+      <p class="disclaimer">
+        Not affiliated, associated, or partnered with the NBA.
+      </p>
+      <p class="copyright">
+        © 2025–2026 All Rights Reserved
+      </p>
+    </div>
+
+    <!-- CENTER -->
+    <div class="footer-center">
+      <h4>Contact</h4>
+      <p>support@courtsidehoops.gg</p>
+      <p>Business hours: 09:00–18:00</p>
+
+      <div class="socials">
+        <div class="social">📷</div>
+        <div class="social">✈️</div>
+        <div class="social">▶️</div>
+        <div class="social">🎮</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="footer-right">
+      <h4>Legal</h4>
+      <div class="footer-links">
+        <div class="footer-btn">Terms of Service →</div>
+        <div class="footer-btn">Privacy Policy →</div>
+        <div class="footer-btn">AML KYC Policy →</div>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const supabase = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script src="../CourtsideHoops/js/auth.js"></script>
+<script src="../CourtsideHoops/js/sell.js"></script>
+
+
+</body>
+</html>

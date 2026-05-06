@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>News | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.main{max-width:1100px;margin:auto;padding:30px 20px;}
+.hero{text-align:center;margin-bottom:30px;}
+.hero h1{margin-bottom:8px;}
+.hero p{color:#777;margin-bottom:15px;}
+
+.announcement-list{display:flex;flex-direction:column;gap:16px;}
+.announcement-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:24px;transition:all 0.2s;
+}
+.announcement-card:hover{box-shadow:0 4px 15px rgba(0,0,0,0.08);transform:translateY(-2px);}
+.announcement-card .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.announcement-card .date{font-size:12px;color:var(--text-muted);}
+.announcement-card .status{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.status-published{background:#22c55e20;color:#15803d;}
+.status-draft{background:#6b728020;color:#4b5563;}
+.announcement-card h3{font-size:18px;margin-bottom:8px;}
+.announcement-card p{color:var(--text-muted);line-height:1.6;font-size:14px;}
+
+.create-btn{background:var(--primary);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;margin-bottom:20px;}
+.create-btn:hover{background:var(--primary-dark);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:1000;}
+.modal-overlay.active{display:flex;}
+.modal-content{background:var(--surface);padding:24px;border-radius:16px;width:500px;max-width:90%;}
+.modal-content h3{margin-bottom:16px;}
+.modal-content input,.modal-content textarea,.modal-content select{width:100%;padding:10px;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:inherit;}
+.modal-content textarea{resize:vertical;min-height:100px;}
+.modal-buttons{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+.modal-buttons button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;}
+.modal-buttons .cancel{background:#6b7280;color:white;}
+.modal-buttons .save{background:var(--primary);color:white;}
+
+.empty-message{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.empty-message i{font-size:48px;margin-bottom:15px;display:block;}
+
+body.dark .announcement-card{background:#1a1a1a;}
+body.dark .modal-content{background:#1a1a1a;}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="market.html"><i class="fas fa-store"></i><span>Market</span></a></li>
+    <li><a href="item.html"><i class="fas fa-clock-rotate-left"></i><span>History</span></a></li>
+    <li><a href="shop.html"><i class="fas fa-basket-shopping"></i><span>Shop</span></a></li>
+    <li><a href="announcement.html"><i class="fas fa-bullhorn"></i><span>News</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span class="tooltip">Cart</span></a>
+    <div class="profile-menu">
+      <button class="nav-btn profile-btn"><i class="fas fa-user"></i><span class="tooltip">Profile</span></button>
+      <div class="dropdown">
+        <a href="account.html"><i class="fas fa-id-card"></i> My Account</a>
+        <button id="darkModeToggle"><i id="darkIcon" class="fas fa-moon"></i></button>
+        <button class="logout-button" data-logout><i class="fas fa-right-from-bracket"></i> Log Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="hero">
+    <h1>📢 News & Announcements</h1>
+    <p>Stay updated with the latest from Courtside Hoops</p>
+  </div>
+
+  <button class="create-btn" id="createBtn" style="display:none;"><i class="fas fa-plus"></i> New Announcement</button>
+  <div class="announcement-list" id="announcementList">
+    <p style="text-align:center;padding:40px;">Loading announcements...</p>
+  </div>
+</div>
+
+<!-- CREATE/EDIT MODAL -->
+<div class="modal-overlay" id="announcementModal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Create Announcement</h3>
+    <input type="text" id="annTitle" placeholder="Announcement Title">
+    <textarea id="annContent" placeholder="Write your announcement..."></textarea>
+    <select id="annStatus">
+      <option value="Published">Published</option>
+      <option value="Draft">Draft</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="cancel" onclick="closeAnnouncementModal()">Cancel</button>
+      <button class="save" id="saveAnnouncementBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-left"><h3>COURTSIDE HOOPS</h3><p class="disclaimer">Not affiliated with the NBA.</p><p class="copyright">© 2025–2026 All Rights Reserved</p></div>
+    <div class="footer-center"><h4>Contact</h4><p>support@courtsidehoops.gg</p></div>
+    <div class="footer-right"><h4>Legal</h4><div class="footer-links"><div class="footer-btn">Terms →</div><div class="footer-btn">Privacy →</div></div></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    window.supabaseClient = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script>
+let currentUser = null;
+let isAdmin = false;
+let editId = null;
+
+// ============================================
+// LOAD ANNOUNCEMENTS
+// ============================================
+async function loadAnnouncements() {
+    const container = document.getElementById('announcementList');
+    container.innerHTML = '<p style="text-align:center;padding:40px;">Loading...</p>';
+    
+    const { data, error } = await window.supabaseClient
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false });
+    
+    if (error) {
+        container.innerHTML = `<p style="text-align:center;padding:40px;color:red;">Error: ${error.message}</p>`;
+        return;
+    }
+    
+    if (!data || data.length === 0) {
+        container.innerHTML = `
+            <div class="empty-message">
+                <i class="fas fa-bullhorn"></i>
+                <h3>No announcements yet</h3>
+                <p>Check back later for updates!</p>
+            </div>`;
+        return;
+    }
+    
+    container.innerHTML = data.map(a => `
+        <div class="announcement-card">
+            <div class="meta">
+                <span class="date">📅 ${new Date(a.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span class="status status-${a.status.toLowerCase()}">${a.status}</span>
+                    ${isAdmin ? `
+                        <i class="fas fa-edit" onclick="editAnnouncement(${a.id}, '${escapeHtml(a.title)}', '${escapeHtml(a.content)}', '${a.status}')" style="cursor:pointer;color:var(--text-muted);" title="Edit"></i>
+                        <i class="fas fa-trash" onclick="deleteAnnouncement(${a.id})" style="cursor:pointer;color:#ef4444;" title="Delete"></i>
+                    ` : ''}
+                </div>
+            </div>
+            <h3>${escapeHtml(a.title)}</h3>
+            <p>${escapeHtml(a.content)}</p>
+        </div>
+    `).join('');
+    
+    // Show create button for admins
+    document.getElementById('createBtn').style.display = isAdmin ? 'inline-block' : 'none';
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================
+// CREATE/EDIT
+// ============================================
+function openAnnouncementModal(edit = false) {
+    document.getElementById('announcementModal').classList.add('active');
+    if (!edit) {
+        document.getElementById('modalTitle').textContent = 'Create Announcement';
+        document.getElementById('annTitle').value = '';
+        document.getElementById('annContent').value = '';
+        document.getElementById('annStatus').value = 'Published';
+        editId = null;
+    }
+}
+
+function editAnnouncement(id, title, content, status) {
+    document.getElementById('announcementModal').classList.add('active');
+    document.getElementById('modalTitle').textContent = 'Edit Announcement';
+    document.getElementById('annTitle').value = title;
+    document.getElementById('annContent').value = content;
+    document.getElementById('annStatus').value = status;
+    editId = id;
+}
+
+function closeAnnouncementModal() {
+    document.getElementById('announcementModal').classList.remove('active');
+    editId = null;
+}
+
+async function saveAnnouncement() {
+    const title = document.getElementById('annTitle').value.trim();
+    const content = document.getElementById('annContent').value.trim();
+    const status = document.getElementById('annStatus').value;
+    
+    if (!title || !content) { alert('Please fill in all fields'); return; }
+    
+    if (editId) {
+        await window.supabaseClient.from('announcements')
+            .update({ title, content, status, updated_at: new Date() })
+            .eq('id', editId);
+    } else {
+        await window.supabaseClient.from('announcements')
+            .insert({ title, content, status, created_by: currentUser?.id });
+    }
+    
+    closeAnnouncementModal();
+    loadAnnouncements();
+}
+
+async function deleteAnnouncement(id) {
+    if (!confirm('Delete this announcement?')) return;
+    await window.supabaseClient.from('announcements').delete().eq('id', id);
+    loadAnnouncements();
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check user
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    if (user) {
+        currentUser = user;
+        const { data: profile } = await window.supabaseClient
+            .from('profiles').select('role').eq('id', user.id).single();
+        isAdmin = profile && ['admin', 'staff', 'superadmin'].includes(profile.role);
+    }
+    
+    loadAnnouncements();
+    
+    // Create button
+    document.getElementById('createBtn')?.addEventListener('click', () => openAnnouncementModal());
+    document.getElementById('saveAnnouncementBtn')?.addEventListener('click', saveAnnouncement);
+    
+    // Close modal on overlay click
+    document.getElementById('announcementModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAnnouncementModal();
+    });
+    
+    // Dropdown
+    const pm = document.querySelector('.profile-menu');
+    const pb = document.querySelector('.profile-btn');
+    const dd = document.querySelector('.dropdown');
+    if (pb && dd) {
+        pb.addEventListener('click', e => { e.stopPropagation(); pm.classList.toggle('active'); });
+        document.addEventListener('click', () => pm.classList.remove('active'));
+        dd.addEventListener('click', e => e.stopPropagation());
+    }
+
+});
+</script>
+
+</body>
+</html>

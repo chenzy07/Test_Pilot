@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .toast {
+    background: var(--surface); color: var(--text);
+    padding: 14px 20px; border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    display: flex; align-items: center; gap: 12px;
+    min-width: 280px; max-width: 380px;
+    animation: slideIn 0.3s ease; border-left: 4px solid;
+  }
+  .toast.success { border-left-color: #22c55e; }
+  .toast.error { border-left-color: #ef4444; }
+  .toast.info { border-left-color: #3b82f6; }
+  .toast.warning { border-left-color: #f97316; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast.fade-out { animation: fadeOut 0.3s ease forwards; }
+  @keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+  
+  body.dark .toast { background: #1e293b; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="market.html"><i class="fas fa-store"></i><span>Market</span></a></li>
+    <li><a href="item.html"><i class="fas fa-clock-rotate-left"></i><span>History</span></a></li>
+    <li><a href="shop.html"><i class="fas fa-basket-shopping"></i><span>Shop</span></a></li>
+    <li><a href="announcement.html"><i class="fas fa-bullhorn"></i><span>News</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-btn">
+      <i class="fas fa-shopping-cart"></i><span class="tooltip">Cart</span>
+    </a>
+    <div class="profile-menu">
+      <button class="nav-btn profile-btn">
+        <i class="fas fa-user"></i><span class="tooltip">Profile</span>
+      </button>
+      <div class="dropdown">
+        <a href="account.html"><i class="fas fa-id-card"></i> My Account</a>
+        <button id="darkModeToggle"><i id="darkIcon" class="fas fa-moon"></i></button>
+        <button class="logout-button" data-logout><i class="fas fa-right-from-bracket"></i> Log Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-links">
+      <a class="sidebar-link active" onclick="showSection('profile-section', event)">
+        <i class="fas fa-user"></i><span>Profile</span>
+      </a>
+      <a class="sidebar-link" onclick="showSection('security-section', event)">
+        <i class="fas fa-shield-halved"></i><span>Security</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    
+    <!-- PROFILE SECTION -->
+    <div id="profile-section" class="account-section active">
+      <div class="section-header with-action">
+        <div class="header-text">
+          <h2>Profile</h2>
+          <p class="muted">Manage your personal information</p>
+        </div>
+        <button class="btn-outline" id="editProfileBtn">Edit Profile</button>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-left">
+          <img src="https://ui-avatars.com/api/?name=User&background=ef4444&color=fff&size=140&bold=true" class="profile-pic" id="profilePic">
+          <button class="btn-light" id="changePhotoBtn">Change Photo</button>
+          <button class="btn-danger" id="removePhotoBtn">Remove</button>
+        </div>
+
+        <div class="profile-right">
+          <div class="info-group">
+            <label>Full Name</label>
+            <p data-field="name">Loading...</p>
+            <input type="text" class="edit-input" data-field="name" value="">
+          </div>
+          <div class="info-group">
+            <label>Email Address</label>
+            <p data-field="email">Loading...</p>
+            <input type="email" class="edit-input" data-field="email" value="" disabled>
+          </div>
+          <div class="info-group">
+            <label>Username</label>
+            <p data-field="username">Loading...</p>
+            <input type="text" class="edit-input" data-field="username" value="">
+          </div>
+          <div class="info-group">
+            <label>Role</label>
+            <p data-field="role">Loading...</p>
+          </div>
+          <div class="info-group">
+            <label>Member Since</label>
+            <p data-field="member_since">Loading...</p>
+          </div>
+
+          <div class="profile-actions" id="profileActions" style="display:none;">
+            <button class="btn-primary" id="saveProfileBtn">Save Changes</button>
+            <button class="btn-outline" id="cancelProfileBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY SECTION -->
+    <div id="security-section" class="account-section" style="display:none;">
+      <div class="section-header">
+        <h2>Account Security</h2>
+        <p class="muted">Manage your password</p>
+      </div>
+      <div class="security-card">
+        <h3>Change Password</h3>
+        <div class="form-group"><label>New Password</label>
+          <input type="password" id="newPassword" placeholder="Enter new password">
+        </div>
+        <div class="form-group"><label>Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm new password">
+        </div>
+        <button class="btn-primary" id="updatePasswordBtn">Update Password</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-left">
+      <h3>COURTSIDE HOOPS</h3>
+      <p class="disclaimer">Not affiliated with the NBA.</p>
+      <p class="copyright">© 2025–2026 All Rights Reserved</p>
+    </div>
+    <div class="footer-center">
+      <h4>Contact</h4>
+      <p>support@courtsidehoops.gg</p>
+      <div class="socials"><div class="social">📷</div><div class="social">✈️</div><div class="social">▶️</div><div class="social">🎮</div></div>
+    </div>
+    <div class="footer-right">
+      <h4>Legal</h4>
+      <div class="footer-links"><div class="footer-btn">Terms →</div><div class="footer-btn">Privacy →</div></div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    window.supabaseClient = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/script.js"></script>
+<script src="../CourtsideHoops/js/logout.js"></script>
+
+<script>
+// ============================================
+// ACCOUNT PAGE - CONNECTED TO SUPABASE
+// ============================================
+
+let currentUser = null;
+let currentProfile = null;
+
+// Toast
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${message}</span>
+        <span onclick="this.parentElement.remove()" style="cursor:pointer;margin-left:10px;">✕</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// Section switching
+function showSection(id, event) {
+    document.querySelectorAll('.account-section').forEach(s => s.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    if (event?.currentTarget) event.currentTarget.classList.add('active');
+}
+
+// Populate profile data
+function populateProfile(profile) {
+    if (!profile) return;
+    
+    document.querySelectorAll('[data-field="name"]').forEach(el => {
+        if (el.tagName === 'P') el.textContent = profile.full_name || 'Not set';
+        if (el.tagName === 'INPUT') el.value = profile.full_name || '';
+    });
+    document.querySelectorAll('[data-field="email"]').forEach(el => {
+        if (el.tagName === 'P') el.textContent = profile.email || 'Not set';
+        if (el.tagName === 'INPUT') el.value = profile.email || '';
+    });
+    document.querySelectorAll('[data-field="username"]').forEach(el => {
+        if (el.tagName === 'P') el.textContent = profile.username || 'Not set';
+        if (el.tagName === 'INPUT') el.value = profile.username || '';
+    });
+    document.querySelectorAll('[data-field="role"]').forEach(el => {
+        if (el.tagName === 'P') el.textContent = profile.role || 'user';
+    });
+    document.querySelectorAll('[data-field="member_since"]').forEach(el => {
+        if (el.tagName === 'P' && profile.member_since) {
+            el.textContent = new Date(profile.member_since).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+    });
+    
+    // Avatar
+    const pic = document.getElementById('profilePic');
+    if (pic && profile.avatar_url) {
+        pic.src = profile.avatar_url;
+    } else if (pic) {
+        pic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name || 'User')}&background=ef4444&color=fff&size=140&bold=true`;
+    }
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', async function() {
+    
+    // Check auth
+    const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
+    
+    if (userError || !user) {
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUser = user;
+    
+    // Get profile from database
+    const { data: profile, error: profileError } = await window.supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+    
+    if (profileError) {
+        console.error('Profile error:', profileError);
+        showToast('Failed to load profile', 'error');
+        return;
+    }
+    
+    currentProfile = profile;
+    populateProfile(profile);
+    showToast(`Welcome, ${profile.full_name || 'User'}!`, 'success');
+    
+    // ---- DROPDOWN ----
+    const profileMenu = document.querySelector('.profile-menu');
+    const profileBtn = document.querySelector('.profile-btn');
+    const dropdown = document.querySelector('.dropdown');
+    
+    if (profileBtn && dropdown) {
+        profileBtn.addEventListener('click', e => { e.stopPropagation(); profileMenu.classList.toggle('active'); });
+        document.addEventListener('click', () => profileMenu.classList.remove('active'));
+        dropdown.addEventListener('click', e => e.stopPropagation());
+    }
+    
+    // ---- EDIT PROFILE ----
+    const editBtn = document.getElementById('editProfileBtn');
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const cancelBtn = document.getElementById('cancelProfileBtn');
+    const profileActions = document.getElementById('profileActions');
+    
+    editBtn?.addEventListener('click', () => {
+        document.getElementById('profile-section').classList.add('editing');
+        profileActions.style.display = 'flex';
+        editBtn.style.display = 'none';
+    });
+    
+    saveBtn?.addEventListener('click', async () => {
+        const fullName = document.querySelector('[data-field="name"].edit-input, input[data-field="name"]')?.value;
+        const username = document.querySelector('[data-field="username"].edit-input, input[data-field="username"]')?.value;
+        
+        const { data, error } = await window.supabaseClient
+            .from('profiles')
+            .update({ full_name: fullName, username: username, updated_at: new Date() })
+            .eq('id', user.id)
+            .select()
+            .single();
+        
+        if (error) {
+            showToast('Failed to update', 'error');
+        } else {
+            currentProfile = data;
+            populateProfile(data);
+            document.getElementById('profile-section').classList.remove('editing');
+            profileActions.style.display = 'none';
+            editBtn.style.display = 'inline-flex';
+            showToast('Profile updated!', 'success');
+        }
+    });
+    
+    cancelBtn?.addEventListener('click', () => {
+        populateProfile(currentProfile);
+        document.getElementById('profile-section').classList.remove('editing');
+        profileActions.style.display = 'none';
+        editBtn.style.display = 'inline-flex';
+    });
+    
+    // ---- CHANGE PHOTO ----
+    document.getElementById('changePhotoBtn')?.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const fileName = `${user.id}/avatar.${file.name.split('.').pop()}`;
+            
+            const { error: uploadError } = await window.supabaseClient.storage
+                .from('avatars')
+                .upload(fileName, file, { upsert: true });
+            
+            if (uploadError) {
+                showToast('Upload failed', 'error');
+                return;
+            }
+            
+            const url = window.supabaseClient.storage.from('avatars').getPublicUrl(fileName).data.publicUrl;
+            
+            await window.supabaseClient.from('profiles')
+                .update({ avatar_url: url })
+                .eq('id', user.id);
+            
+            document.getElementById('profilePic').src = url;
+            currentProfile.avatar_url = url;
+            showToast('Photo updated!', 'success');
+        };
+        input.click();
+    });
+    
+    // ---- REMOVE PHOTO ----
+    document.getElementById('removePhotoBtn')?.addEventListener('click', async () => {
+        await window.supabaseClient.from('profiles')
+            .update({ avatar_url: null })
+            .eq('id', user.id);
+        
+        currentProfile.avatar_url = null;
+        document.getElementById('profilePic').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentProfile.full_name || 'User')}&background=ef4444&color=fff&size=140&bold=true`;
+        showToast('Photo removed', 'warning');
+    });
+    
+    // ---- CHANGE PASSWORD ----
+    document.getElementById('updatePasswordBtn')?.addEventListener('click', async () => {
+        const newPw = document.getElementById('newPassword').value;
+        const confirmPw = document.getElementById('confirmPassword').value;
+        
+        if (!newPw || newPw.length < 6) {
+            showToast('Password must be at least 6 characters', 'error');
+            return;
+        }
+        if (newPw !== confirmPw) {
+            showToast('Passwords do not match', 'error');
+            return;
+        }
+        
+        const { error } = await window.supabaseClient.auth.updateUser({ password: newPw });
+        
+        if (error) {
+            showToast(error.message, 'error');
+        } else {
+            showToast('Password updated!', 'success');
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+    });
+    
+    // ---- LOGOUT ----
+    document.querySelectorAll('[data-logout]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            await window.supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        });
+    });
+});
+</script>
+
+</body>
+</html>

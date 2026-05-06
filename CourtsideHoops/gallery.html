@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gallery | Courtside Hoops</title>
+<link rel="stylesheet" href="../CourtsideHoops/css/style.css">
+<link rel="stylesheet" href="../CourtsideHoops/css/ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <img src="../CourtsideHoops/images/logo.png" alt="Logo" class="logo-icon">
+    COURTSIDE HOOPS
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"><i class="fas fa-home"></i><span>Home</span></a></li>
+    <li><a href="gallery.html"><i class="fas fa-images"></i><span>Gallery</span></a></li>
+    <li><a href="about.html"><i class="fas fa-users"></i><span>About Us</span></a></li>
+    <li><a href="contact.html"><i class="fas fa-envelope"></i><span>Contact</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span class="tooltip">Cart</span></a>
+    <a href="login.html" class="nav-btn nav-login"><i class="fas fa-user"></i><span class="tooltip">Profile</span></a>
+  </div>
+</header>
+
+<div class="page">
+<aside class="sidebar">
+  <h3>Filters</h3>
+  <div class="filter"><p>Select Cards</p><button class="game-btn">NBA</button></div>
+  <div class="filter"><p>Price</p><input type="text" placeholder="$ 0.00"><input type="text" placeholder="$ ∞"></div>
+  <div class="filter"><p>Rarity</p>
+    <div class="rarity"><div class="r legendary"></div><div class="r epic"></div><div class="r rare"></div><div class="r common"></div></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="socials"><div class="social">📷</div><div class="social">✈️</div><div class="social">▶️</div><div class="social">🎮</div></div>
+    <p class="disclaimer">COURTSIDE HOOPS is not affiliated, associated, or partnered with National Basketball Association.</p>
+    <p class="copyright">© 2025–2026 COURTSIDE HOOPS All Rights Reserved</p>
+    <div class="contact"><p>support@courtsidehoops.gg</p><p>Business hours: 09:00–18:00</p></div>
+    <div class="sidebar-links"><div class="sidebar-btn">Terms of Service →</div><div class="sidebar-btn">Privacy Policy →</div><div class="sidebar-btn">AML KYC Policy →</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="banner"><h2>NEW NBA CARD?</h2><p>You will never lose anything with CourtsideHoops</p></div>
+  <br>
+  <div class="categories">
+    <button>Superstars</button><button>Hall of Famers</button><button>MVP Winner</button>
+    <button>Teams</button><button>Underrated Players</button><button>Rising Stars</button><button>Rookie</button>
+  </div>
+  <div class="search-bar"><input type="text" id="search" placeholder="Quick search"></div>
+
+  <!-- DYNAMIC FROM SUPABASE -->
+  <div class="items" id="items">
+    <p style="text-align:center;padding:40px;">Loading cards...</p>
+  </div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-content">
+      <div class="modal-image"><img id="modalImg"></div>
+      <div class="modal-details">
+        <h2 id="modalName"></h2>
+        <span class="rarity-tag" id="modalRarity"></span>
+        <p class="modal-desc">Premium NBA collectible card. Limited supply, high demand.</p>
+        <div class="modal-bottom">
+          <h3 id="modalPrice"></h3>
+          <button class="add-btn" id="modalAddToCart">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    window.supabaseClient = window.supabase.createClient(
+        'https://gaqekdspovcprscseduu.supabase.co',
+        'sb_publishable_xZcQXBEyR8d6ZLdgUoLiAw_zurH_X3w'
+    );
+</script>
+<script src="../CourtsideHoops/js/script.js"></script>
+
+<script>
+// ============================================
+// GALLERY - LOAD FROM SUPABASE
+// ============================================
+
+async function loadGallery() {
+    const container = document.getElementById('items');
+    
+    const { data: products, error } = await window.supabaseClient
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true });
+    
+    if (error || !products || products.length === 0) {
+        container.innerHTML = '<p style="text-align:center;padding:40px;">No cards found.</p>';
+        return;
+    }
+    
+    container.innerHTML = products.map(p => {
+        const imgSrc = p.image_url || '../CourtsideHoops/images/default.png';
+        return `
+            <div class="card"
+                 data-id="${p.id}"
+                 data-name="${p.name}"
+                 data-price="₱${parseFloat(p.price).toLocaleString()}"
+                 data-rarity="${p.rarity}"
+                 data-img="${imgSrc}">
+                <img src="${imgSrc}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=NBA'">
+                <h4>${p.name}</h4>
+                <p>₱${parseFloat(p.price).toLocaleString()}</p>
+                <a href="login.html"><button class="add-btn">Add to Cart</button></a>
+            </div>
+        `;
+    }).join('');
+    
+    initModal();
+}
+
+// ============================================
+// MODAL
+// ============================================
+function initModal() {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const modalImg = document.getElementById('modalImg');
+    const modalName = document.getElementById('modalName');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalRarity = document.getElementById('modalRarity');
+    
+    let scrollY = 0;
+    
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+    }
+    
+    document.querySelectorAll('.card').forEach(card => {
+        card.onclick = function(e) {
+            if (e.target.closest('.add-btn') || e.target.closest('a')) return;
+            scrollY = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            modalImg.src = card.dataset.img;
+            modalName.textContent = card.dataset.name;
+            modalPrice.textContent = card.dataset.price;
+            modalRarity.textContent = card.dataset.rarity;
+            modalRarity.className = 'rarity-tag rarity-' + card.dataset.rarity;
+            modal.classList.add('active');
+        };
+    });
+    
+    modalClose.onclick = closeModal;
+    modal.onclick = function(e) { if (e.target === modal) closeModal(); };
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+}
+
+// Search
+document.addEventListener('DOMContentLoaded', () => {
+    loadGallery();
+    
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', async function() {
+            const query = this.value.trim();
+            const container = document.getElementById('items');
+            
+            if (!query) { loadGallery(); return; }
+            
+            const { data } = await window.supabaseClient
+                .from('products')
+                .select('*')
+                .or(`name.ilike.%${query}%,category.ilike.%${query}%`)
+                .order('id', { ascending: true });
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align:center;padding:20px;">No cards found.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(p => {
+                const imgSrc = p.image_url || '../CourtsideHoops/images/default.png';
+                return `
+                    <div class="card" data-id="${p.id}" data-name="${p.name}" 
+                         data-price="₱${parseFloat(p.price).toLocaleString()}" 
+                         data-rarity="${p.rarity}" data-img="${imgSrc}">
+                        <img src="${imgSrc}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=NBA'">
+                        <h4>${p.name}</h4>
+                        <p>₱${parseFloat(p.price).toLocaleString()}</p>
+                        <a href="login.html"><button class="add-btn">Add to Cart</button></a>
+                    </div>
+                `;
+            }).join('');
+            initModal();
+        });
+    }
+});
+</script>
+
+</body>
+</html>
